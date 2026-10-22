@@ -7,10 +7,12 @@ module.exports = async (req, res) => {
   try {
     const r = await fetch(base + p + '?' + new URLSearchParams(rest));
     const text = await r.text();
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    // cache only good responses, never errors
+    res.setHeader('Cache-Control', r.ok ? 's-maxage=300, stale-while-revalidate=600' : 'no-store');
     res.setHeader('Content-Type', 'application/json');
     res.status(r.status).send(text);
   } catch (e) {
+    res.setHeader('Cache-Control', 'no-store');
     res.status(502).json({ error: String(e) });
   }
 };
