@@ -1,8 +1,10 @@
 // Singify service worker: makes the app installable and keeps the app shell available offline.
-const V = 'singify-v2';
-const SHELL = ['/', '/index.html', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
+// Bump V (and the ?v= on the icon links) whenever the icons or app shell change.
+const V = 'singify-v3';
+const SHELL = ['/', '/index.html', '/manifest.json', '/icons/icon-192.png?v=3', '/icons/icon-512.png?v=3', '/icons/icon-maskable-512.png?v=3', '/icons/apple-touch-icon.png?v=3', '/icons/favicon.png?v=3'];
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // cache:'reload' skips the browser HTTP cache so the shell is always fetched fresh
+  e.waitUntil(caches.open(V).then(c => Promise.all(SHELL.map(u => fetch(new Request(u, { cache: 'reload' })).then(r => r.ok && c.put(u, r)).catch(() => {})))).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
   // only remove old shell caches, never the downloaded songs cache
@@ -12,7 +14,8 @@ self.addEventListener('fetch', e => {
   const u = new URL(e.request.url);
   if (e.request.method !== 'GET' || u.origin !== location.origin || u.pathname.startsWith('/api/')) return;
   e.respondWith(
-    fetch(e.request)
+    // network first, but always revalidate with the server so stale browser-cached files are not reused
+    fetch(e.request, { cache: 'no-cache' })
       .then(r => { const c = r.clone(); caches.open(V).then(x => x.put(e.request, c)); return r; })
       .catch(() => caches.match(e.request).then(r => r || caches.match('/index.html')))
   );
