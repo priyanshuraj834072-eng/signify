@@ -86,4 +86,12 @@
       });
     }, 4000);
   }
+
+  /* Google sign-in: use the native Google dialog (Google blocks login inside a WebView) */
+  var FA = P.FirebaseAuthentication;
+  if (FA && FA.signInWithGoogle) {
+    window.SG_GSIGN = function () {
+      return FA.signInWithGoogle().then(function (r) { return (r && r.credential) || {}; });
+    };
+  }
 })();
