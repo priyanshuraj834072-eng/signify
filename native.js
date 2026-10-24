@@ -33,14 +33,46 @@
         this.artwork = o.artwork || [];
       };
     }
+
+    /* The native plugin downloads artwork itself and crashes the app when the download fails
+       (for example offline). So the notification is sent first WITHOUT artwork, and the artwork
+       is added only after the browser has confirmed that the image really loads. */
+    var metaToken = 0;
+    var imgOk = function (src) {
+      return new Promise(function (res) {
+        var done = false, im = new Image();
+        var fin = function (ok) { if (!done) { done = true; res(ok); } };
+        im.onload = function () { fin(true); };
+        im.onerror = function () { fin(false); };
+        setTimeout(function () { fin(false); }, 5000);
+        try { im.src = src; } catch (e) { fin(false); }
+      });
+    };
+    var sendMeta = function (m, art) {
+      safe(function () {
+        return MS.setMetadata({ title: m.title || '', artist: m.artist || '', album: m.album || '', artwork: art });
+      });
+    };
+    var pushMeta = function (m) {
+      var tok = ++metaToken;
+      sendMeta(m, []);
+      var list = (m.artwork || []).filter(function (a) { return a && a.src && /^https?:|^data:/.test(a.src); });
+      if (!list.length || navigator.onLine === false) return;
+      Promise.all(list.map(function (a) { return imgOk(a.src).then(function (ok) { return ok ? a : null; }); }))
+        .then(function (r) {
+          if (tok !== metaToken || navigator.onLine === false) return;
+          var good = r.filter(Boolean);
+          if (good.length) sendMeta(m, good);
+        })
+        .catch(function () {});
+    };
+
     var meta = null, state = 'none';
     var shim = {
       get metadata() { return meta; },
       set metadata(m) {
         meta = m;
-        if (m) safe(function () {
-          return MS.setMetadata({ title: m.title || '', artist: m.artist || '', album: m.album || '', artwork: m.artwork || [] });
-        });
+        if (m) { try { pushMeta(m); } catch (e) {} }
       },
       get playbackState() { return state; },
       set playbackState(s) {
