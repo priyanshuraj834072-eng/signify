@@ -8,6 +8,14 @@
     try { var r = f(); if (r && typeof r.catch === 'function') r.catch(function () {}); } catch (e) {}
   };
 
+  /* splash: hide it as soon as the page is ready */
+  var SS = P.SplashScreen;
+  if (SS && SS.hide) {
+    var hideSplash = function () { safe(function () { return SS.hide({ fadeOutDuration: 250 }); }); };
+    if (document.readyState === 'complete') setTimeout(hideSplash, 200);
+    else window.addEventListener('load', function () { setTimeout(hideSplash, 200); });
+  }
+
   /* hide the Install buttons inside the app */
   var st = document.createElement('style');
   st.textContent = '[data-inst]{display:none!important}';
