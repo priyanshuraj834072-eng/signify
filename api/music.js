@@ -1,8 +1,28 @@
-// Vercel serverless function: sirf logged-in (Firebase) users ke liye music API proxy
+// Singify music proxy (Vercel serverless function, /api/music)
+// - The song-API mirrors live ONLY here, never in the browser, so a copy of index.html is useless on its own.
+// - Everyone (guest or logged in) gets the same speed and the same limit. A Firebase token is optional:
+//   if it is valid we count requests per user, otherwise per IP. Same limit either way.
+// - Mirrors are tried one after another (healthy one first), each with a timeout.
+//
+// Optional Vercel env vars (you can leave both unset):
+//   MUSIC_MIRRORS  comma separated list of API base urls, tried in this order
+//   MUSIC_API_URL  one extra base url that is tried first (old setting, still works)
 const crypto = require('crypto');
-const BASE = () => (process.env.MUSIC_API_URL || '').replace(/\/$/, '');
+
+const DEFAULT_MIRRORS = ['https://jiosavan-azure.vercel.app', 'https://saavn.dev'];
+const clean = u => String(u || '').trim().replace(/\/+$/, '').replace(/^https:\/\//i, 'https://');
+const MIRRORS = () => {
+  const env = (process.env.MUSIC_MIRRORS || '').split(',').map(clean).filter(Boolean);
+  const one = clean(process.env.MUSIC_API_URL);
+  const list = [...(one ? [one] : []), ...(env.length ? env : DEFAULT_MIRRORS)];
+  return [...new Set(list)].filter(u => /^https:\/\//i.test(u));
+};
+
 const PROJECT = process.env.FIREBASE_PROJECT_ID || 'singify-e6614';
 const CERT_URL = 'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
+const TIMEOUT = 8000;           // per mirror
+const LIMIT = 240;              // requests per minute, same for everybody
+const BAD_FOR = 60000;          // a failing mirror is skipped for 1 minute
 
 let certs = null, certsExp = 0;
 async function getCerts() {
@@ -14,7 +34,7 @@ async function getCerts() {
   return certs;
 }
 
-// Firebase ID token verify (RS256, Google ki public keys se)
+// Firebase ID token check (RS256 with Google's public keys). Returns the payload or null.
 async function verify(token) {
   const parts = String(token || '').split('.');
   if (parts.length !== 3) return null;
@@ -35,45 +55,87 @@ async function verify(token) {
   return ok ? p : null;
 }
 
-// halka rate limit: ek user ke liye 1 minute mein 150 requests (har instance par alag)
+// light rate limit (per server instance)
 const hits = new Map();
-function limited(uid) {
-  const now = Date.now(), e = hits.get(uid);
-  if (!e || now - e.t > 60000) { hits.set(uid, { t: now, n: 1 }); return false; }
-  return ++e.n > 150;
+function limited(key) {
+  const now = Date.now();
+  if (hits.size > 5000) for (const [k, v] of hits) if (now - v.t > 60000) hits.delete(k);
+  const e = hits.get(key);
+  if (!e || now - e.t > 60000) { hits.set(key, { t: now, n: 1 }); return false; }
+  return ++e.n > LIMIT;
+}
+
+const clientIp = req => String(req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || (req.socket && req.socket.remoteAddress) || 'unknown').split(',')[0].trim();
+
+// Without a token the request must come from a page on this same site (blocks plain curl/scripts).
+function fromOurSite(req) {
+  const sfs = req.headers['sec-fetch-site'];
+  if (sfs) return sfs === 'same-origin';
+  try { return new URL(req.headers.referer || '').host === req.headers.host; } catch (e) { return false; }
+}
+
+// mirror health: remember who answered last, skip failing ones for a while
+const badUntil = new Map();
+let lastGood = '';
+function order() {
+  const all = MIRRORS(), now = Date.now();
+  const live = all.filter(b => (badUntil.get(b) || 0) < now);
+  const list = live.length ? live : all;
+  return lastGood && list.includes(lastGood) ? [lastGood, ...list.filter(b => b !== lastGood)] : list;
+}
+
+async function ask(base, pathAndQuery) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), TIMEOUT);
+  try {
+    const r = await fetch(base + pathAndQuery, { signal: ctrl.signal, headers: { accept: 'application/json' } });
+    const text = await r.text();
+    let j = null;
+    try { j = JSON.parse(text); } catch (e) { /* html error page, paused deployment ... */ }
+    if (!r.ok || !j || j.success === false) return { ok: false, status: r.status, text };
+    return { ok: true, status: r.status, text };
+  } catch (e) {
+    return { ok: false, status: 0, text: String(e && e.name === 'AbortError' ? 'timeout' : e) };
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 module.exports = async (req, res) => {
-  const base = BASE();
-  if (!base) return res.status(500).json({ error: 'MUSIC_API_URL not set in Vercel' });
+  res.setHeader('Vary', 'Authorization');
+  const fail = (code, msg) => { res.setHeader('Cache-Control', 'no-store'); return res.status(code).json({ error: msg }); };
 
+  const mirrors = order();
+  if (!mirrors.length) return fail(500, 'no music mirrors configured');
+
+  // who is asking? token is optional, nobody is turned away for not having one
   const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   let user = null;
-  try { user = await verify(token); } catch (e) {}
-  if (!user) {
-    res.setHeader('Cache-Control', 'no-store');
-    return res.status(401).json({ error: 'login required' });
-  }
-  if (limited(user.sub)) {
-    res.setHeader('Cache-Control', 'no-store');
-    return res.status(429).json({ error: 'too many requests' });
-  }
+  if (token) { try { user = await verify(token); } catch (e) {} }
+  if (!user && !fromOurSite(req)) return fail(403, 'not allowed');
+  if (limited(user ? 'u:' + user.sub : 'ip:' + clientIp(req))) return fail(429, 'too many requests');
 
   const { p = '/', ...rest } = req.query;
   const path = String(p);
-  if (!(path.startsWith('/api/') || path.startsWith('/result/')) || path.includes('..')) {
-    return res.status(400).json({ error: 'bad path' });
+  if (!(path.startsWith('/api/') || path.startsWith('/result/')) || path.includes('..')) return fail(400, 'bad path');
+  const pq = path + '?' + new URLSearchParams(rest);
+
+  let last = null, saw404 = null;
+  for (const base of mirrors) {
+    const r = await ask(base, pq);
+    if (r.ok) {
+      badUntil.delete(base);
+      lastGood = base;
+      res.setHeader('Cache-Control', 'private, max-age=300');
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(200).send(r.text);
+    }
+    if (r.status === 404) saw404 = r;          // endpoint missing on this mirror, maybe another has it
+    else badUntil.set(base, Date.now() + BAD_FOR);
+    last = r;
   }
-  try {
-    const r = await fetch(base + path + '?' + new URLSearchParams(rest));
-    const text = await r.text();
-    // sirf browser mein cache (private), CDN mein nahi: warna bina login wale ko bhi mil jata
-    res.setHeader('Cache-Control', r.ok ? 'private, max-age=300' : 'no-store');
-    res.setHeader('Vary', 'Authorization');
-    res.setHeader('Content-Type', 'application/json');
-    res.status(r.status).send(text);
-  } catch (e) {
-    res.setHeader('Cache-Control', 'no-store');
-    res.status(502).json({ error: String(e) });
-  }
+  const f = saw404 || last;
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Content-Type', 'application/json');
+  return res.status(f && f.status === 404 ? 404 : 502).send(JSON.stringify({ success: false, error: 'all music mirrors failed', detail: String(f && f.text || '').slice(0, 120) }));
 };
