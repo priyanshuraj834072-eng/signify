@@ -1,7 +1,7 @@
 // Singify service worker: makes the app installable and keeps the app shell available offline.
 // Bump V (and the ?v= on the icon links) whenever the icons or app shell change.
-const V = 'singify-v4';
-const SHELL = ['/', '/index.html', '/manifest.json', '/songs.js?v=1', '/icons/icon-192.png?v=3', '/icons/icon-512.png?v=3', '/icons/icon-maskable-512.png?v=3', '/icons/apple-touch-icon.png?v=3', '/icons/favicon.png?v=3'];
+const V = 'singify-v5';
+const SHELL = ['/', '/index.html', '/manifest.json', '/songs.js?v=2', '/icons/icon-192.png?v=3', '/icons/icon-512.png?v=3', '/icons/icon-maskable-512.png?v=3', '/icons/apple-touch-icon.png?v=3', '/icons/favicon.png?v=3'];
 self.addEventListener('install', e => {
   // cache:'reload' skips the browser HTTP cache so the shell is always fetched fresh
   e.waitUntil(caches.open(V).then(c => Promise.all(SHELL.map(u => fetch(new Request(u, { cache: 'reload' })).then(r => r.ok && c.put(u, r)).catch(() => {})))).then(() => self.skipWaiting()));

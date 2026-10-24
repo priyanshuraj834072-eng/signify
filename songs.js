@@ -3,7 +3,8 @@
    Loaded as a classic script before the main app script, so it shares its globals (api, dec, pic, C, pool, search ...). */
 function norm(s){
  const im=Array.isArray(s.image)?(s.image[s.image.length-1]||{}).url:s.image;
- const u=Array.isArray(s.downloadUrl)?(s.downloadUrl[s.downloadUrl.length-1]||{}).url:(s.media_url||s.url);
+ const dl=Array.isArray(s.downloadUrl)?s.downloadUrl.filter(d=>d&&d.url&&!/_12\.(mp4|m4a)$/i.test(d.url)):null; /* _12 = 12kbps stub/preview, never a full song */
+ const u=dl?(dl[dl.length-1]||{}).url:(s.media_url||s.url);
  const al=s.album&&typeof s.album==='object'?s.album.name:s.album;
  const o={id:String(s.id),title:dec(s.name||s.song||s.title),artist:dec(s.artists&&s.artists.primary?s.artists.primary.map(a=>a.name).join(', '):(s.primary_artists||s.singers||'')),alb:dec(al),img:(im||'').replace(/150x150|50x50/,'500x500'),url:u,dur:+s.duration||0,pc:+s.playCount||0,ar:(s.artists&&s.artists.primary||[]).slice(0,2).map(a=>({id:String(a.id),n:dec(a.name),img:pic(a)})),pa:(s.artists&&s.artists.primary||[]).map(a=>({id:String(a.id),n:dec(a.name),img:pic(a),r:String(a.role||'')}))};
  C[o.id]=o;return o}
@@ -22,7 +23,7 @@ function sameSong(a,b){if(tkey(a)!==tkey(b))return false;
 function songScore(s){const m=(String(s.alb||'').match(COMP)||[]).length,al=String(s.alb||'').toLowerCase().replace(/[^a-z0-9]/g,''),tt=String(s.title||'').toLowerCase().replace(/[^a-z0-9]/g,'');
  /* an album that has the song's own name in it (e.g. film title track) is most likely the original */
  return (s.url?1e12:0)-m*1e9+(al&&tt&&al!==tt&&tt.includes(al)?5e8:0)+(+s.pc||0)}
-function dedupe(list){const out=[];(list||[]).forEach(s=>{if(!s)return;const i=out.findIndex(o=>sameSong(o,s));if(i<0)out.push(s);else if(songScore(s)>songScore(out[i]))out[i]=s});return out}
+function dedupe(list){const out=[];(list||[]).forEach(s=>{if(!s||!s.url)return;const i=out.findIndex(o=>sameSong(o,s));if(i<0)out.push(s);else if(songScore(s)>songScore(out[i]))out[i]=s});return out}
 function searchNet(q){return(async()=>{
  const rs=j=>{const r=(j.data&&j.data.results)||j.data||j.results||j;return Array.isArray(r)?r:[]},seen={},out=[],add=l=>l.forEach(x=>{if(!seen[x.id]){seen[x.id]=1;out.push(x)}});
  for(const [p,k] of [['/api/search/songs',{query:q,limit:30}],['/result/',{query:q,lyrics:'false'}]]){
@@ -43,3 +44,8 @@ async function entNet(type,id,name){
   else if(id){const j=await api('/api/'+(type==='album'?'albums':'playlists'),{id,limit:50}),r=(j.data&&j.data.songs)||[];if(r.length)return r.map(norm)}
  }catch(e){}
  return search(name)}
+
+/* CDN links expire: fetch a fresh stream link for a song by its id */
+async function resolveTrackUrls(s){try{const j=await api('/api/songs',{ids:s.id}),raw=Array.isArray(j.data)?j.data[0]:((j.data&&j.data.results&&j.data.results[0])||j.data),f=raw&&raw.id?norm(raw):null;return f&&f.url?f:null}catch(e){return null}}
+/* songs similar to a given song (used when the queue runs out) */
+async function suggestNet(s){try{const j=await api('/api/songs/'+encodeURIComponent(s.id)+'/suggestions',{limit:15}),raw=Array.isArray(j.data)?j.data:((j.data&&j.data.results)||[]);return dedupe(raw.map(norm))}catch(e){return[]}}
