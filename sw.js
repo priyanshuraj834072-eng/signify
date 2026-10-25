@@ -15,6 +15,8 @@ self.addEventListener('fetch', e => {
   const u = new URL(e.request.url);
   if (e.request.method !== 'GET' || u.origin !== location.origin || u.pathname.startsWith('/api/') || u.pathname === '/version.json' || u.pathname === '/sw.js') return;
   if (SHELL.includes(u.pathname)) {
+    // the in-app Update button asks for a fresh copy (cache: 'reload'): always go to the network for it
+    if (e.request.cache === 'reload' || e.request.cache === 'no-store') { e.respondWith(fetch(e.request)); return; }
     // cache first: the user keeps the current version until they press Update
     e.respondWith(caches.open(V).then(c => c.match(u.pathname).then(r => r || fetch(e.request).then(n => { if (n.ok) c.put(u.pathname, n.clone()); return n; }))));
     return;
