@@ -370,6 +370,7 @@ html.mixon body::before{background:var(--bg)!important}
 html.mixon *,html.mixon *::before,html.mixon *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 html.mixon #bar,html.mixon #tabs,html.mixon .sheet>div,html.mixon #dlg>div,html.mixon #toast,html.mixon #side,html.mixon #qp{background:var(--ps)}
 .sgedge[data-theme=light] body::after{content:"";position:fixed;top:0;left:0;right:0;height:var(--sat,0px);background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0));z-index:99998;pointer-events:none}
+body.kb #tabs,body.kb #bar{display:none!important}
 .stg{border:1px solid var(--line);background:var(--card);border-radius:var(--r-row,18px);overflow:hidden;margin:6px 0 4px;max-width:520px}
 .sgr{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:12px 16px;text-align:left;font-size:15px;font-weight:600;color:var(--tx);border-bottom:1px solid var(--line);background:none}
 .stg>.sgr:last-child{border-bottom:0}.sgr>span{flex:1;min-width:0}.sgr i{width:34px;height:22px;border-radius:7px;flex:none}.sgr em{font-style:normal;color:var(--mut);font-size:13.5px;font-weight:500}.sgr svg{width:18px;height:18px;color:var(--mut);flex:none}
@@ -1234,7 +1235,7 @@ try{if(typeof firebase!=='undefined'){firebase.initializeApp(FBC);AUTH=firebase.
   if(u&&!okU(u)){FU=null;avUI();if(location.hash==='#/stage')stageV();return}
   const was=WAS;FU=u;WAS=!!u;
   if(u){const n=(u.displayName||u.email||'').split(/[ @]/)[0];if(n&&NAME==='Singer'){NAME=n.slice(0,24);sv('sg_name',NAME)}avUI();cloudLoad(u)}
-  else{CLT++;if(was){try{window.SG_GSIGNOUT&&window.SG_GSIGNOUT()}catch(e){}document.documentElement.classList.add('noanim');try{localStorage.setItem('sg_mix','false');localStorage.setItem('sg_skin','"lemon"');localStorage.setItem('sg_ui','"default"');localStorage.setItem('sg_ext','false')}catch(e){}cloudWipe();wipeLocal().finally(()=>location.reload())}avUI()}
+  else{CLT++;if(was){try{window.SG_GSIGNOUT&&window.SG_GSIGNOUT()}catch(e){}document.documentElement.classList.add('noanim');try{history.replaceState(null,'','#/home')}catch(e){}try{localStorage.setItem('sg_mix','false');localStorage.setItem('sg_skin','"lemon"');localStorage.setItem('sg_ui','"default"');localStorage.setItem('sg_ext','false')}catch(e){}cloudWipe();wipeLocal().finally(()=>location.reload())}avUI()}
   if(location.hash==='#/stage')stageV()});
  AUTH.getRedirectResult().catch(x=>{const m=authMsg(x);if(m)toast(m)})}}catch(e){console.error('Firebase init',e)}
 function loginV(){lockAuto(true);main.innerHTML=`<div class="pg"><div class="prof"><div><h1 style="font-size:24px;line-height:1.25">Sign in to keep your music everywhere</h1></div><a class="ib tp gear" href="#/settings" aria-label="Settings">${ic('gear')}</a></div><div class="lg" style="max-width:420px;margin-top:22px"><button class="go tp" data-au="g" style="display:flex;width:100%;justify-content:center;margin-bottom:12px">Continue with Google</button><button class="btn tp" data-au="em" style="display:flex;width:100%;justify-content:center;margin-bottom:12px">Login with email</button><button class="btn tp" data-au="new" style="display:flex;width:100%;justify-content:center">Create account</button></div></div>`}
@@ -1444,6 +1445,8 @@ document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault
  if(l&&l.q&&l.q.length&&!Q.length){Q=l.q;qi=0;VN=l.from||'Singify';Q.forEach(x=>C[x.id]=x);const lt=ls('sg_lt',null);RESUME=lt&&lt.id===Q[0].id?lt.t:0;
   $('#nfrom').textContent=VN;ui();loadLy(Q[0]);
   const v=Q[0].dur?RESUME/Q[0].dur*1000:0;['b','n'].forEach(k=>{setR('#'+k+'s',v);$('#'+k+'c').textContent=fm(RESUME);$('#'+k+'d').textContent=fm(Q[0].dur)});$('#bp').style.width=v/10+'%'}}
+/* keyboard open (the page gets shorter): hide the bottom nav and the mini player so they do not sit on top of the keyboard */
+{let kw=innerWidth,kh=innerHeight;const kbChk=()=>{if(Math.abs(innerWidth-kw)>80){kw=innerWidth;kh=innerHeight}if(innerHeight>kh)kh=innerHeight;document.body.classList.toggle('kb',innerHeight<kh-120)};addEventListener('resize',kbChk);if(window.visualViewport)visualViewport.addEventListener('resize',kbChk)}
 instUI();setTheme(THEME,1);setGlass(GL);applySkin(SKIN);if(UIT!=='default'){applyUI(UIT);loadUI().catch(()=>{})}if(MIX)startMixT();mixUI();apply(0);qpRender();
 if(location.hash==='#/now')history.replaceState(null,'','#/home');
 route();arLoad();
