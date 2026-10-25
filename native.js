@@ -98,6 +98,8 @@
   if (AP && AP.addListener) {
     safe(function () {
       return AP.addListener('backButton', function () {
+        var up = document.getElementById('updp');
+        if (up) { if (!up.dataset.req) { var sk = up.querySelector('.lt'); if (sk) sk.click(); } return; }
         var h = location.hash || '#/home';
         var layers = (typeof LAY !== 'undefined' && LAY.length) ? LAY.length : 0;
         var atHome = (h === '#/home' || h === '#/' || h === '#') && !document.body.classList.contains('now') && !layers;
