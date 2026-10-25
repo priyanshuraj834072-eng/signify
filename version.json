@@ -1,6 +1,12 @@
 {
-  "version": "1.2.6",
-  "minimum": "1.2.2",
+  "version": "1.3.0",
+  "minimum": "1.0.0",
   "mandatory": false,
-  "message": "adding themes."
+  "message": "Similar songs queue, Daily Mood, weekly trending aur edge-to-edge aaye hain.",
+  "apk": {
+    "build": 20,
+    "url": "https://github.com/priyanshuraj834072-eng/singify-app/releases/latest/download/singify.apk",
+    "mandatory": false,
+    "message": "Naya Singify app aaya hai. Download karke purane ke upar install karo, login aur data bane rahenge."
+  }
 }
