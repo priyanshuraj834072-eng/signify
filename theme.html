@@ -1,140 +1,84 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Singify UI themes</title><style>
-/* Singify Theme Studio v2 — theme-only stylesheet; no scripts or external assets.
-   Distinct visual systems, adaptive dark/light palettes, lightweight interaction states. */
-html[data-ui]{--pd:.22s;--ur:18px;--ease:cubic-bezier(.2,.75,.25,1);--theme-font:system-ui,-apple-system,"Segoe UI",sans-serif;--theme-title:var(--theme-font);font-family:var(--theme-font)}
-html[data-ui] body,html[data-ui] button,html[data-ui] input,html[data-ui] textarea{font-family:var(--theme-font)}
+<html><head><meta charset="utf-8"><title>Singify UI themes</title>
+<!-- Singify theme.html: every UI theme lives here so index.html stays small.
+     A theme = palette + corner shapes + font + animation speed/feel.
+     Add a new theme: add one block in <style> and one line in the JSON list below.
+     The Colour UI (accent colour) still works on top of every theme. -->
+<style>
+/* shared hooks: --ur = corner radius, --ease = animation feel, --pd = page animation time */
+html[data-ui]{--pd:.3s}
+html[data-ui] .card img,html[data-ui] .skc,html[data-ui] .btn,html[data-ui] #bar,html[data-ui] .sheet>div,html[data-ui] #dlg>div,html[data-ui] #qp{border-radius:var(--ur,18px)}
 html[data-ui] .pg{animation-duration:var(--pd)}
-html[data-ui] .card img,html[data-ui] .skc,html[data-ui] .btn,html[data-ui] #bar,html[data-ui] .sheet>div,html[data-ui] #dlg>div,html[data-ui] #qp,html[data-ui] .tile,html[data-ui] .mix,html[data-ui] .genre,html[data-ui] .song{border-radius:var(--ur)}
-html[data-ui] h1,html[data-ui] h2,html[data-ui] h3,html[data-ui] .hero b{font-family:var(--theme-title);letter-spacing:var(--title-track,normal)}
-html[data-ui] .card,html[data-ui] .mix,html[data-ui] .genre,html[data-ui] .tile,html[data-ui] .song,html[data-ui] #bar,html[data-ui] #tabs,html[data-ui] .sheet>div,html[data-ui] .btn{transition:background-color .16s ease,border-color .16s ease,transform .16s ease,box-shadow .16s ease}
-html[data-ui] .song:active,html[data-ui] .btn:active,html[data-ui] .chip:active{transform:scale(.985)}
-html[data-ui] #tabs a.on{color:var(--gold)}
+
+/* 1. Neon: dark violet, sharp corners, glowing lines, snappy */
+html[data-ui=neon]{--ur:8px;--pd:.18s;--ease:cubic-bezier(.2,1,.3,1)}
+html[data-ui=neon]:not([data-theme=light]){--bg:#05010f;--ps:#0d0524;--panel:rgba(20,6,48,.72);--card:rgba(150,80,255,.1);--line:rgba(180,110,255,.35);--tx:#f6eeff;--mut:#b49be0;--g1:rgba(170,90,255,.16);--g2:rgba(60,20,120,.06);--gb:rgba(190,120,255,.5);--gh:rgba(230,190,255,.55);--sh:rgba(150,60,255,.45)}
+html[data-ui=neon] .card,html[data-ui=neon] .skc,html[data-ui=neon] #bar{box-shadow:0 0 18px rgba(160,80,255,.28)}
+
+/* 2. Amoled: pure black, flat, no blur, very fast */
+html[data-ui=amoled]{--ur:14px;--pd:.14s;--ease:cubic-bezier(.3,0,.2,1)}
+html[data-ui=amoled]:not([data-theme=light]){--bg:#000;--ps:#000;--panel:#050505;--card:#0e0e10;--line:#202024;--tx:#fff;--mut:#8a8a93;--g1:#0e0e10;--g2:#0e0e10;--gb:#26262b;--gh:transparent;--sh:transparent}
+html[data-ui=amoled] *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-ui=amoled] body::before{background:#000!important}
+
+/* 3. Forest: deep green, big soft corners, slow floaty motion */
+html[data-ui=forest]{--ur:28px;--pd:.55s;--ease:cubic-bezier(.16,.84,.3,1)}
+html[data-ui=forest]:not([data-theme=light]){--bg:#04100a;--ps:#0a2015;--panel:rgba(12,40,26,.7);--card:rgba(120,230,160,.08);--line:rgba(140,230,170,.16);--tx:#e9fff0;--mut:#8fb9a0;--g1:rgba(120,230,160,.12);--g2:rgba(40,120,70,.05);--gb:rgba(150,235,180,.22);--gh:rgba(210,255,225,.3);--sh:rgba(0,30,10,.5)}
+
+/* Retro removed: replaced with lightweight, visibly distinct themes. */
+
+/* 5. Candy: plum pink, extra round, bouncy */
+html[data-ui=candy]{--ur:32px;--pd:.45s;--ease:cubic-bezier(.34,1.56,.64,1)}
+html[data-ui=candy]:not([data-theme=light]){--bg:#1b0a24;--ps:#2d1040;--panel:rgba(60,20,80,.72);--card:rgba(255,130,200,.12);--line:rgba(255,150,210,.28);--tx:#fff0fa;--mut:#d9a5cf;--g1:rgba(255,130,200,.2);--g2:rgba(150,60,200,.08);--gb:rgba(255,170,220,.4);--gh:rgba(255,220,240,.45);--sh:rgba(120,20,90,.4)}
+
+/* 6. Ice: cold navy-teal, heavy glass, calm smooth */
+html[data-ui=ice]{--ur:22px;--pd:.35s;--ease:cubic-bezier(.25,.8,.25,1)}
+html[data-ui=ice]:not([data-theme=light]){--bg:#03111a;--ps:#08283a;--panel:rgba(10,50,72,.55);--card:rgba(160,225,255,.1);--line:rgba(170,230,255,.2);--tx:#eafaff;--mut:#8fb8cc;--g1:rgba(170,230,255,.18);--g2:rgba(60,150,200,.06);--gb:rgba(190,240,255,.3);--gh:rgba(230,250,255,.45);--sh:rgba(0,40,70,.5)}
+html[data-ui=ice] #bar,html[data-ui=ice] #tabs,html[data-ui=ice] .sheet>div{-webkit-backdrop-filter:blur(30px) saturate(1.7);backdrop-filter:blur(30px) saturate(1.7)}
+
+
+/* 7. Sakura: feminine rose / berry palette, rounded typography, gentle lift-on-hover.
+   No continuous animation or backdrop blur, to keep scrolling smooth on phones. */
+html[data-ui=sakura]{--ur:24px;--pd:.22s;--ease:cubic-bezier(.2,.8,.2,1)}
+html[data-ui=sakura]:not([data-theme=light]){--bg:#160913;--ps:#26101e;--panel:#281321;--card:rgba(255,133,190,.09);--line:rgba(255,155,205,.24);--tx:#fff0f7;--mut:#d3a0b8;--g1:rgba(255,92,165,.13);--g2:rgba(110,25,75,.08);--gb:rgba(255,150,205,.3);--gh:rgba(255,205,230,.22);--sh:rgba(65,5,35,.28)}
+html[data-ui=sakura] body{font-family:ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-ui=sakura] .card,html[data-ui=sakura] .skc,html[data-ui=sakura] .sheet>div{border:1px solid rgba(255,155,205,.16)}
+html[data-ui=sakura] .btn,html[data-ui=sakura] #bar{border-radius:999px}
+html[data-ui=sakura] .card{transition:transform .18s ease,border-color .18s ease}
+@media(hover:hover){html[data-ui=sakura] .card:hover{transform:translateY(-2px);border-color:rgba(255,155,205,.42)}}
+
+/* 8. Aurora: midnight teal + electric violet, crisp editorial text, small accent line. */
+html[data-ui=aurora]{--ur:16px;--pd:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
+html[data-ui=aurora]:not([data-theme=light]){--bg:#060b18;--ps:#0b1527;--panel:#101b30;--card:rgba(95,230,213,.07);--line:rgba(105,218,220,.2);--tx:#effaff;--mut:#9ab9cf;--g1:rgba(65,215,200,.11);--g2:rgba(120,90,255,.07);--gb:rgba(100,235,220,.26);--gh:rgba(140,180,255,.28);--sh:rgba(0,8,25,.32)}
+html[data-ui=aurora] body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-ui=aurora] .card,html[data-ui=aurora] .skc{border-left:2px solid rgba(100,235,220,.35)}
+html[data-ui=aurora] .btn{border-radius:12px}
+html[data-ui=aurora] #bar{border:1px solid rgba(100,235,220,.22)}
+html[data-ui=aurora] .card{transition:transform .14s ease,border-color .14s ease}
+html[data-ui=aurora] .card:active{transform:scale(.985)}
+
+/* 9. Velvet: wine red + champagne gold, elegant serif headings, no costly filters. */
+html[data-ui=velvet]{--ur:12px;--pd:.24s;--ease:cubic-bezier(.2,.75,.25,1)}
+html[data-ui=velvet]:not([data-theme=light]){--bg:#12090e;--ps:#211018;--panel:#28131c;--card:rgba(232,185,115,.065);--line:rgba(222,177,111,.23);--tx:#fff3e4;--mut:#c9a99a;--g1:rgba(190,95,105,.1);--g2:rgba(100,35,48,.07);--gb:rgba(225,185,120,.27);--gh:rgba(255,220,165,.2);--sh:rgba(20,0,8,.35)}
+html[data-ui=velvet] body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-ui=velvet] h1,html[data-ui=velvet] h2,html[data-ui=velvet] h3,html[data-ui=velvet] .logo{font-family:Georgia,"Times New Roman",serif;letter-spacing:.2px}
+html[data-ui=velvet] .card,html[data-ui=velvet] .skc{border-bottom:1px solid rgba(225,185,120,.26)}
+html[data-ui=velvet] .btn{border-radius:10px;transition:transform .14s ease,background-color .14s ease}
+html[data-ui=velvet] .btn:active{transform:translateY(1px)}
+
+/* Keep all motion short and respect the device's reduced-motion preference. */
 @media(prefers-reduced-motion:reduce){html[data-ui] *,html[data-ui] *::before,html[data-ui] *::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
-
-/* NEON — angular club-console identity; glow only on active/hover states. */
-html[data-ui=neon]{--ur:8px;--pd:.16s;--ease:cubic-bezier(.2,1,.3,1);--theme-font:system-ui,sans-serif;--title-track:.045em}
-html[data-ui=neon]:not([data-theme=light]){--bg:#080612;--ps:#100b22;--panel:#17102a;--card:#17102c;--line:#45336c;--tx:#f8f3ff;--mut:#b6a5d5;--g1:#21133b;--g2:#100b22;--gb:#6d48a8;--gh:#c6a2ff;--sh:#0008;--gold:#c084fc;--gold2:#7c3aed}
-html[data-ui=neon][data-theme=light]{--bg:#f7f2ff;--ps:#eee5ff;--panel:#fffaff;--card:#f3eaff;--line:#d8c4f5;--tx:#25143d;--mut:#79658f;--g1:#fff;--g2:#f0e4ff;--gb:#d3b8f5;--gh:#fff;--sh:#7140a51c;--gold:#7c3aed;--gold2:#a855f7}
-html[data-ui=neon] .card img,html[data-ui=neon] .skc,html[data-ui=neon] .tile{border:1px solid var(--line)}
-html[data-ui=neon] .song.cur{box-shadow:inset 3px 0 var(--gold)}
-html[data-ui=neon] #tabs a.on svg{filter:drop-shadow(0 0 5px color-mix(in srgb,var(--gold) 75%,transparent))}
-html[data-ui=neon] .btn.g,html[data-ui=neon] .pp{box-shadow:0 0 16px color-mix(in srgb,var(--gold) 24%,transparent)}
-
-/* AMOLED — minimal, crisp, zero blur and almost no decoration. */
-html[data-ui=amoled]{--ur:12px;--pd:.12s;--ease:linear;--theme-font:Arial,system-ui,sans-serif}
-html[data-ui=amoled]:not([data-theme=light]){--bg:#000;--ps:#050505;--panel:#080808;--card:#0e0e10;--line:#242424;--tx:#f8f8f8;--mut:#929292;--g1:#101010;--g2:#050505;--gb:#292929;--gh:#222;--sh:transparent;--gold:#f5f5f5;--gold2:#bdbdbd}
-html[data-ui=amoled][data-theme=light]{--bg:#fafafa;--ps:#f1f1f1;--panel:#fff;--card:#f5f5f5;--line:#dedede;--tx:#171717;--mut:#707070;--g1:#fff;--g2:#f6f6f6;--gb:#e0e0e0;--gh:#fff;--sh:transparent;--gold:#202020;--gold2:#555}
-html[data-ui=amoled] *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important}
-html[data-ui=amoled] body::before{background:var(--bg)!important}
-html[data-ui=amoled] .song{border-bottom:1px solid var(--line);border-radius:0}
-html[data-ui=amoled] #bar,html[data-ui=amoled] #tabs{border-radius:0;border-left:0;border-right:0}
-
-/* FOREST — organic editorial look, pill chips and leaf-green active rail. */
-html[data-ui=forest]{--ur:24px;--pd:.24s;--ease:cubic-bezier(.16,.84,.3,1);--theme-font:Georgia,"Times New Roman",serif;--title-track:-.02em}
-html[data-ui=forest]:not([data-theme=light]){--bg:#07150e;--ps:#0c2116;--panel:#10291b;--card:#12291c;--line:#294d37;--tx:#ecf8ed;--mut:#9bb9a0;--g1:#163321;--g2:#0b1d12;--gb:#426b4b;--gh:#9fcaa322;--sh:#0006;--gold:#a8e6a1;--gold2:#4d9b61}
-html[data-ui=forest][data-theme=light]{--bg:#f3f7ed;--ps:#e8f0df;--panel:#fbfff5;--card:#e8f1df;--line:#cbdcc0;--tx:#1d3525;--mut:#657b68;--g1:#fff;--g2:#e7f1df;--gb:#c3d8ba;--gh:#fff;--sh:#284e2814;--gold:#3d7847;--gold2:#74a66e}
-html[data-ui=forest] .card img{border-radius:18px 18px 38px 18px}
-html[data-ui=forest] .song.cur{background:color-mix(in srgb,var(--gold) 12%,transparent);box-shadow:inset 4px 0 var(--gold)}
-html[data-ui=forest] .chip,html[data-ui=forest] .pill{border-radius:999px}
-html[data-ui=forest] #bar{border-radius:26px 26px 12px 12px}
-
-/* CANDY — playful soft shapes, expressive rounded system font. */
-html[data-ui=candy]{--ur:27px;--pd:.2s;--ease:cubic-bezier(.2,.8,.2,1);--theme-font:"Trebuchet MS",system-ui,sans-serif;--title-track:-.035em}
-html[data-ui=candy]:not([data-theme=light]){--bg:#1b0b22;--ps:#2a1234;--panel:#31173c;--card:#321a3b;--line:#62345f;--tx:#fff1fa;--mut:#d8a9ce;--g1:#431f4c;--g2:#25102e;--gb:#78446e;--gh:#ffdcf244;--sh:#0d031955;--gold:#ff91ce;--gold2:#bf5db3}
-html[data-ui=candy][data-theme=light]{--bg:#fff2fa;--ps:#ffe4f3;--panel:#fff9fd;--card:#ffe7f4;--line:#f3c5e0;--tx:#4b2040;--mut:#986582;--g1:#fff;--g2:#ffe5f3;--gb:#f1c0df;--gh:#fff;--sh:#a72e7618;--gold:#d63391;--gold2:#a62a83}
-html[data-ui=candy] .card img{border-radius:22px}
-html[data-ui=candy] .skc,html[data-ui=candy] .tile,html[data-ui=candy] .mix,html[data-ui=candy] .genre{border-radius:26px}
-html[data-ui=candy] .song.cur{background:color-mix(in srgb,var(--gold) 13%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
-html[data-ui=candy] #tabs a.on{transform:translateY(-2px)}
-
-/* ICE — glassy arctic cards; modest blur limited to persistent controls. */
-html[data-ui=ice]{--ur:19px;--pd:.2s;--ease:cubic-bezier(.25,.8,.25,1);--theme-font:system-ui,sans-serif}
-html[data-ui=ice]:not([data-theme=light]){--bg:#06121d;--ps:#0a2434;--panel:#102c3d;--card:#102b3b;--line:#294d61;--tx:#ecfaff;--mut:#9bbfce;--g1:#163b50;--g2:#0a202e;--gb:#3e7189;--gh:#c9f3ff38;--sh:#00111c88;--gold:#70e0f5;--gold2:#2789b2}
-html[data-ui=ice][data-theme=light]{--bg:#edf8fc;--ps:#e0f2f8;--panel:#f9fdff;--card:#e6f5fa;--line:#c4e1ec;--tx:#123448;--mut:#587b8d;--g1:#fff;--g2:#e2f4fa;--gb:#b9dfea;--gh:#fff;--sh:#1e6e8d18;--gold:#087f9e;--gold2:#35b5ce}
-html[data-ui=ice] #bar,html[data-ui=ice] #tabs,html[data-ui=ice] .sheet>div{background:var(--panel);border:1px solid var(--line)}
-html[data-ui=ice] .card img{border:1px solid var(--gb)}
-html[data-ui=ice] .song.cur{background:color-mix(in srgb,var(--gold) 12%,transparent)}
-
-/* SAKURA — feminine editorial theme: rose palette, elegant headings, blossom accents. */
-html[data-ui=sakura]{--ur:20px;--pd:.2s;--ease:cubic-bezier(.2,.7,.2,1);--theme-font:"Trebuchet MS",system-ui,sans-serif;--theme-title:Georgia,"Times New Roman",serif;--title-track:-.035em}
-html[data-ui=sakura]:not([data-theme=light]){--bg:#180b14;--ps:#26101f;--panel:#2b1525;--card:#301626;--line:#593248;--tx:#fff0f6;--mut:#cfa5b8;--g1:#421d34;--g2:#21101c;--gb:#77435e;--gh:#ffe3f133;--sh:#0c03094d;--gold:#ff9dc8;--gold2:#d45c99}
-html[data-ui=sakura][data-theme=light]{--bg:#fff4f8;--ps:#ffe8f0;--panel:#fffafd;--card:#ffeaf2;--line:#f0c7d8;--tx:#482437;--mut:#97697f;--g1:#fff;--g2:#ffe7f0;--gb:#edbfd3;--gh:#fff;--sh:#9e38611a;--gold:#c83f7c;--gold2:#eb78a8}
-html[data-ui=sakura] .card img{border-radius:20px 20px 20px 7px}
-html[data-ui=sakura] .hero{border-radius:26px}
-html[data-ui=sakura] .song{border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
-html[data-ui=sakura] .song.cur{background:color-mix(in srgb,var(--gold) 12%,transparent);box-shadow:inset 3px 0 var(--gold)}
-html[data-ui=sakura] .nl.on{border-radius:0 18px 18px 0}
-
-/* AURORA — cinematic midnight gradients, thin outlines, compact controls. */
-html[data-ui=aurora]{--ur:13px;--pd:.17s;--ease:cubic-bezier(.2,.7,.2,1);--theme-font:system-ui,sans-serif;--title-track:.015em}
-html[data-ui=aurora]:not([data-theme=light]){--bg:#070f1e;--ps:#0d1a2b;--panel:#102239;--card:#11263b;--line:#25485a;--tx:#f0f8ff;--mut:#9ab5cb;--g1:#12384a;--g2:#101b35;--gb:#3a6875;--gh:#b7fff72b;--sh:#0007;--gold:#66e6d2;--gold2:#6e86ff}
-html[data-ui=aurora][data-theme=light]{--bg:#f0f8ff;--ps:#e4f1fc;--panel:#fbfeff;--card:#e6f5f9;--line:#c6dfe8;--tx:#162c43;--mut:#5b7891;--g1:#fff;--g2:#e2f3f5;--gb:#b8dbe0;--gh:#fff;--sh:#224f7a18;--gold:#087f8a;--gold2:#526ce5}
-html[data-ui=aurora] .card img,html[data-ui=aurora] .tile,html[data-ui=aurora] .mix,html[data-ui=aurora] .genre{border:1px solid var(--line)}
-html[data-ui=aurora] .song{border-radius:9px}
-html[data-ui=aurora] .song.cur{background:color-mix(in srgb,var(--gold) 11%,transparent);box-shadow:inset 3px 0 var(--gold)}
-html[data-ui=aurora] #bar{border-top:1px solid var(--gb)}
-
-/* VELVET — sophisticated lounge, serif display and burgundy/gold surfaces. */
-html[data-ui=velvet]{--ur:15px;--pd:.2s;--ease:cubic-bezier(.2,.65,.25,1);--theme-font:system-ui,sans-serif;--theme-title:Georgia,"Times New Roman",serif;--title-track:-.025em}
-html[data-ui=velvet]:not([data-theme=light]){--bg:#160b0c;--ps:#241011;--panel:#2b1515;--card:#2b1717;--line:#56302a;--tx:#fff2df;--mut:#c5a68e;--g1:#3a1c1b;--g2:#1e1010;--gb:#704a35;--gh:#ffe5bd25;--sh:#08020277;--gold:#e8bd75;--gold2:#a96b3c}
-html[data-ui=velvet][data-theme=light]{--bg:#fbf5ec;--ps:#f2e6d6;--panel:#fffaf2;--card:#f5e9dc;--line:#e4cfb8;--tx:#38211c;--mut:#87675a;--g1:#fff;--g2:#f4e5d5;--gb:#dfc3a3;--gh:#fff;--sh:#6b392015;--gold:#9c5c24;--gold2:#c08a4b}
-html[data-ui=velvet] .card img{border-radius:7px}
-html[data-ui=velvet] .hero{border-radius:8px}
-html[data-ui=velvet] .song{border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent);border-radius:4px}
-html[data-ui=velvet] .song.cur{background:color-mix(in srgb,var(--gold) 13%,transparent)}
-html[data-ui=velvet] .btn,html[data-ui=velvet] .chip{border-radius:6px}
-html[data-ui=velvet] #bar{border-top:2px solid var(--gold)}
-
-</style></head><body><script type="application/json" id="uithemes">
+</style></head>
+<body>
+<script type="application/json" id="uithemes">
 [
-  {
-    "id": "neon",
-    "name": "Neon",
-    "desc": "Angular club UI · electric violet",
-    "sw": "linear-gradient(135deg,#c084fc,#21103e)"
-  },
-  {
-    "id": "amoled",
-    "name": "Amoled",
-    "desc": "Pure black · crisp and minimal",
-    "sw": "linear-gradient(135deg,#333,#000)"
-  },
-  {
-    "id": "forest",
-    "name": "Forest",
-    "desc": "Organic editorial · leaf green",
-    "sw": "linear-gradient(135deg,#a8e6a1,#10291b)"
-  },
-  {
-    "id": "candy",
-    "name": "Candy",
-    "desc": "Playful rounded · pink plum",
-    "sw": "linear-gradient(135deg,#ff91ce,#321a3b)"
-  },
-  {
-    "id": "ice",
-    "name": "Ice",
-    "desc": "Arctic glass · cool cyan",
-    "sw": "linear-gradient(135deg,#70e0f5,#102b3b)"
-  },
-  {
-    "id": "sakura",
-    "name": "Sakura",
-    "desc": "Rose editorial · feminine and elegant",
-    "sw": "linear-gradient(135deg,#ffb5d2,#4a1e35)"
-  },
-  {
-    "id": "aurora",
-    "name": "Aurora",
-    "desc": "Cinematic midnight · teal and indigo",
-    "sw": "linear-gradient(135deg,#66e6d2,#526ce5)"
-  },
-  {
-    "id": "velvet",
-    "name": "Velvet",
-    "desc": "Luxury lounge · burgundy and gold",
-    "sw": "linear-gradient(135deg,#e8bd75,#3a1c1b)"
-  }
-]
-</script></body></html>
+ {"id":"neon","name":"Neon","desc":"Glowing violet, sharp and snappy","sw":"linear-gradient(135deg,#b45cff,#2a0a5e)"},
+ {"id":"amoled","name":"Amoled","desc":"Pure black, flat and fast","sw":"linear-gradient(135deg,#2a2a2e,#000)"},
+ {"id":"forest","name":"Forest","desc":"Deep green, soft and calm","sw":"linear-gradient(135deg,#5fe39a,#0a2a1a)"},
+ {"id":"candy","name":"Candy","desc":"Plum pink, round and bouncy","sw":"linear-gradient(135deg,#ff7ac8,#4a1466)"},
+ {"id":"ice","name":"Ice","desc":"Cold teal, glassy and smooth","sw":"linear-gradient(135deg,#7fdcff,#08283a)"},
+ {"id":"sakura","name":"Sakura","desc":"Rose-pink, soft rounded style","sw":"linear-gradient(135deg,#ff9dca,#551538)"},
+ {"id":"aurora","name":"Aurora","desc":"Teal-violet, crisp modern style","sw":"linear-gradient(135deg,#61eed6,#6758d9,#091529)"},
+ {"id":"velvet","name":"Velvet","desc":"Wine red, champagne-gold elegance","sw":"linear-gradient(135deg,#e6bd7a,#521b31,#170910)"}
+]</script>
+</body></html>
