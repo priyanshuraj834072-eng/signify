@@ -1,0 +1,140 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Singify UI themes</title><style>
+/* Singify Theme Studio v2 — theme-only stylesheet; no scripts or external assets.
+   Distinct visual systems, adaptive dark/light palettes, lightweight interaction states. */
+html[data-ui]{--pd:.22s;--ur:18px;--ease:cubic-bezier(.2,.75,.25,1);--theme-font:system-ui,-apple-system,"Segoe UI",sans-serif;--theme-title:var(--theme-font);font-family:var(--theme-font)}
+html[data-ui] body,html[data-ui] button,html[data-ui] input,html[data-ui] textarea{font-family:var(--theme-font)}
+html[data-ui] .pg{animation-duration:var(--pd)}
+html[data-ui] .card img,html[data-ui] .skc,html[data-ui] .btn,html[data-ui] #bar,html[data-ui] .sheet>div,html[data-ui] #dlg>div,html[data-ui] #qp,html[data-ui] .tile,html[data-ui] .mix,html[data-ui] .genre,html[data-ui] .song{border-radius:var(--ur)}
+html[data-ui] h1,html[data-ui] h2,html[data-ui] h3,html[data-ui] .hero b{font-family:var(--theme-title);letter-spacing:var(--title-track,normal)}
+html[data-ui] .card,html[data-ui] .mix,html[data-ui] .genre,html[data-ui] .tile,html[data-ui] .song,html[data-ui] #bar,html[data-ui] #tabs,html[data-ui] .sheet>div,html[data-ui] .btn{transition:background-color .16s ease,border-color .16s ease,transform .16s ease,box-shadow .16s ease}
+html[data-ui] .song:active,html[data-ui] .btn:active,html[data-ui] .chip:active{transform:scale(.985)}
+html[data-ui] #tabs a.on{color:var(--gold)}
+@media(prefers-reduced-motion:reduce){html[data-ui] *,html[data-ui] *::before,html[data-ui] *::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* NEON — angular club-console identity; glow only on active/hover states. */
+html[data-ui=neon]{--ur:8px;--pd:.16s;--ease:cubic-bezier(.2,1,.3,1);--theme-font:system-ui,sans-serif;--title-track:.045em}
+html[data-ui=neon]:not([data-theme=light]){--bg:#080612;--ps:#100b22;--panel:#17102a;--card:#17102c;--line:#45336c;--tx:#f8f3ff;--mut:#b6a5d5;--g1:#21133b;--g2:#100b22;--gb:#6d48a8;--gh:#c6a2ff;--sh:#0008;--gold:#c084fc;--gold2:#7c3aed}
+html[data-ui=neon][data-theme=light]{--bg:#f7f2ff;--ps:#eee5ff;--panel:#fffaff;--card:#f3eaff;--line:#d8c4f5;--tx:#25143d;--mut:#79658f;--g1:#fff;--g2:#f0e4ff;--gb:#d3b8f5;--gh:#fff;--sh:#7140a51c;--gold:#7c3aed;--gold2:#a855f7}
+html[data-ui=neon] .card img,html[data-ui=neon] .skc,html[data-ui=neon] .tile{border:1px solid var(--line)}
+html[data-ui=neon] .song.cur{box-shadow:inset 3px 0 var(--gold)}
+html[data-ui=neon] #tabs a.on svg{filter:drop-shadow(0 0 5px color-mix(in srgb,var(--gold) 75%,transparent))}
+html[data-ui=neon] .btn.g,html[data-ui=neon] .pp{box-shadow:0 0 16px color-mix(in srgb,var(--gold) 24%,transparent)}
+
+/* AMOLED — minimal, crisp, zero blur and almost no decoration. */
+html[data-ui=amoled]{--ur:12px;--pd:.12s;--ease:linear;--theme-font:Arial,system-ui,sans-serif}
+html[data-ui=amoled]:not([data-theme=light]){--bg:#000;--ps:#050505;--panel:#080808;--card:#0e0e10;--line:#242424;--tx:#f8f8f8;--mut:#929292;--g1:#101010;--g2:#050505;--gb:#292929;--gh:#222;--sh:transparent;--gold:#f5f5f5;--gold2:#bdbdbd}
+html[data-ui=amoled][data-theme=light]{--bg:#fafafa;--ps:#f1f1f1;--panel:#fff;--card:#f5f5f5;--line:#dedede;--tx:#171717;--mut:#707070;--g1:#fff;--g2:#f6f6f6;--gb:#e0e0e0;--gh:#fff;--sh:transparent;--gold:#202020;--gold2:#555}
+html[data-ui=amoled] *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important}
+html[data-ui=amoled] body::before{background:var(--bg)!important}
+html[data-ui=amoled] .song{border-bottom:1px solid var(--line);border-radius:0}
+html[data-ui=amoled] #bar,html[data-ui=amoled] #tabs{border-radius:0;border-left:0;border-right:0}
+
+/* FOREST — organic editorial look, pill chips and leaf-green active rail. */
+html[data-ui=forest]{--ur:24px;--pd:.24s;--ease:cubic-bezier(.16,.84,.3,1);--theme-font:Georgia,"Times New Roman",serif;--title-track:-.02em}
+html[data-ui=forest]:not([data-theme=light]){--bg:#07150e;--ps:#0c2116;--panel:#10291b;--card:#12291c;--line:#294d37;--tx:#ecf8ed;--mut:#9bb9a0;--g1:#163321;--g2:#0b1d12;--gb:#426b4b;--gh:#9fcaa322;--sh:#0006;--gold:#a8e6a1;--gold2:#4d9b61}
+html[data-ui=forest][data-theme=light]{--bg:#f3f7ed;--ps:#e8f0df;--panel:#fbfff5;--card:#e8f1df;--line:#cbdcc0;--tx:#1d3525;--mut:#657b68;--g1:#fff;--g2:#e7f1df;--gb:#c3d8ba;--gh:#fff;--sh:#284e2814;--gold:#3d7847;--gold2:#74a66e}
+html[data-ui=forest] .card img{border-radius:18px 18px 38px 18px}
+html[data-ui=forest] .song.cur{background:color-mix(in srgb,var(--gold) 12%,transparent);box-shadow:inset 4px 0 var(--gold)}
+html[data-ui=forest] .chip,html[data-ui=forest] .pill{border-radius:999px}
+html[data-ui=forest] #bar{border-radius:26px 26px 12px 12px}
+
+/* CANDY — playful soft shapes, expressive rounded system font. */
+html[data-ui=candy]{--ur:27px;--pd:.2s;--ease:cubic-bezier(.2,.8,.2,1);--theme-font:"Trebuchet MS",system-ui,sans-serif;--title-track:-.035em}
+html[data-ui=candy]:not([data-theme=light]){--bg:#1b0b22;--ps:#2a1234;--panel:#31173c;--card:#321a3b;--line:#62345f;--tx:#fff1fa;--mut:#d8a9ce;--g1:#431f4c;--g2:#25102e;--gb:#78446e;--gh:#ffdcf244;--sh:#0d031955;--gold:#ff91ce;--gold2:#bf5db3}
+html[data-ui=candy][data-theme=light]{--bg:#fff2fa;--ps:#ffe4f3;--panel:#fff9fd;--card:#ffe7f4;--line:#f3c5e0;--tx:#4b2040;--mut:#986582;--g1:#fff;--g2:#ffe5f3;--gb:#f1c0df;--gh:#fff;--sh:#a72e7618;--gold:#d63391;--gold2:#a62a83}
+html[data-ui=candy] .card img{border-radius:22px}
+html[data-ui=candy] .skc,html[data-ui=candy] .tile,html[data-ui=candy] .mix,html[data-ui=candy] .genre{border-radius:26px}
+html[data-ui=candy] .song.cur{background:color-mix(in srgb,var(--gold) 13%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
+html[data-ui=candy] #tabs a.on{transform:translateY(-2px)}
+
+/* ICE — glassy arctic cards; modest blur limited to persistent controls. */
+html[data-ui=ice]{--ur:19px;--pd:.2s;--ease:cubic-bezier(.25,.8,.25,1);--theme-font:system-ui,sans-serif}
+html[data-ui=ice]:not([data-theme=light]){--bg:#06121d;--ps:#0a2434;--panel:#102c3d;--card:#102b3b;--line:#294d61;--tx:#ecfaff;--mut:#9bbfce;--g1:#163b50;--g2:#0a202e;--gb:#3e7189;--gh:#c9f3ff38;--sh:#00111c88;--gold:#70e0f5;--gold2:#2789b2}
+html[data-ui=ice][data-theme=light]{--bg:#edf8fc;--ps:#e0f2f8;--panel:#f9fdff;--card:#e6f5fa;--line:#c4e1ec;--tx:#123448;--mut:#587b8d;--g1:#fff;--g2:#e2f4fa;--gb:#b9dfea;--gh:#fff;--sh:#1e6e8d18;--gold:#087f9e;--gold2:#35b5ce}
+html[data-ui=ice] #bar,html[data-ui=ice] #tabs,html[data-ui=ice] .sheet>div{background:var(--panel);border:1px solid var(--line)}
+html[data-ui=ice] .card img{border:1px solid var(--gb)}
+html[data-ui=ice] .song.cur{background:color-mix(in srgb,var(--gold) 12%,transparent)}
+
+/* SAKURA — feminine editorial theme: rose palette, elegant headings, blossom accents. */
+html[data-ui=sakura]{--ur:20px;--pd:.2s;--ease:cubic-bezier(.2,.7,.2,1);--theme-font:"Trebuchet MS",system-ui,sans-serif;--theme-title:Georgia,"Times New Roman",serif;--title-track:-.035em}
+html[data-ui=sakura]:not([data-theme=light]){--bg:#180b14;--ps:#26101f;--panel:#2b1525;--card:#301626;--line:#593248;--tx:#fff0f6;--mut:#cfa5b8;--g1:#421d34;--g2:#21101c;--gb:#77435e;--gh:#ffe3f133;--sh:#0c03094d;--gold:#ff9dc8;--gold2:#d45c99}
+html[data-ui=sakura][data-theme=light]{--bg:#fff4f8;--ps:#ffe8f0;--panel:#fffafd;--card:#ffeaf2;--line:#f0c7d8;--tx:#482437;--mut:#97697f;--g1:#fff;--g2:#ffe7f0;--gb:#edbfd3;--gh:#fff;--sh:#9e38611a;--gold:#c83f7c;--gold2:#eb78a8}
+html[data-ui=sakura] .card img{border-radius:20px 20px 20px 7px}
+html[data-ui=sakura] .hero{border-radius:26px}
+html[data-ui=sakura] .song{border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
+html[data-ui=sakura] .song.cur{background:color-mix(in srgb,var(--gold) 12%,transparent);box-shadow:inset 3px 0 var(--gold)}
+html[data-ui=sakura] .nl.on{border-radius:0 18px 18px 0}
+
+/* AURORA — cinematic midnight gradients, thin outlines, compact controls. */
+html[data-ui=aurora]{--ur:13px;--pd:.17s;--ease:cubic-bezier(.2,.7,.2,1);--theme-font:system-ui,sans-serif;--title-track:.015em}
+html[data-ui=aurora]:not([data-theme=light]){--bg:#070f1e;--ps:#0d1a2b;--panel:#102239;--card:#11263b;--line:#25485a;--tx:#f0f8ff;--mut:#9ab5cb;--g1:#12384a;--g2:#101b35;--gb:#3a6875;--gh:#b7fff72b;--sh:#0007;--gold:#66e6d2;--gold2:#6e86ff}
+html[data-ui=aurora][data-theme=light]{--bg:#f0f8ff;--ps:#e4f1fc;--panel:#fbfeff;--card:#e6f5f9;--line:#c6dfe8;--tx:#162c43;--mut:#5b7891;--g1:#fff;--g2:#e2f3f5;--gb:#b8dbe0;--gh:#fff;--sh:#224f7a18;--gold:#087f8a;--gold2:#526ce5}
+html[data-ui=aurora] .card img,html[data-ui=aurora] .tile,html[data-ui=aurora] .mix,html[data-ui=aurora] .genre{border:1px solid var(--line)}
+html[data-ui=aurora] .song{border-radius:9px}
+html[data-ui=aurora] .song.cur{background:color-mix(in srgb,var(--gold) 11%,transparent);box-shadow:inset 3px 0 var(--gold)}
+html[data-ui=aurora] #bar{border-top:1px solid var(--gb)}
+
+/* VELVET — sophisticated lounge, serif display and burgundy/gold surfaces. */
+html[data-ui=velvet]{--ur:15px;--pd:.2s;--ease:cubic-bezier(.2,.65,.25,1);--theme-font:system-ui,sans-serif;--theme-title:Georgia,"Times New Roman",serif;--title-track:-.025em}
+html[data-ui=velvet]:not([data-theme=light]){--bg:#160b0c;--ps:#241011;--panel:#2b1515;--card:#2b1717;--line:#56302a;--tx:#fff2df;--mut:#c5a68e;--g1:#3a1c1b;--g2:#1e1010;--gb:#704a35;--gh:#ffe5bd25;--sh:#08020277;--gold:#e8bd75;--gold2:#a96b3c}
+html[data-ui=velvet][data-theme=light]{--bg:#fbf5ec;--ps:#f2e6d6;--panel:#fffaf2;--card:#f5e9dc;--line:#e4cfb8;--tx:#38211c;--mut:#87675a;--g1:#fff;--g2:#f4e5d5;--gb:#dfc3a3;--gh:#fff;--sh:#6b392015;--gold:#9c5c24;--gold2:#c08a4b}
+html[data-ui=velvet] .card img{border-radius:7px}
+html[data-ui=velvet] .hero{border-radius:8px}
+html[data-ui=velvet] .song{border-bottom:1px solid color-mix(in srgb,var(--line) 55%,transparent);border-radius:4px}
+html[data-ui=velvet] .song.cur{background:color-mix(in srgb,var(--gold) 13%,transparent)}
+html[data-ui=velvet] .btn,html[data-ui=velvet] .chip{border-radius:6px}
+html[data-ui=velvet] #bar{border-top:2px solid var(--gold)}
+
+</style></head><body><script type="application/json" id="uithemes">
+[
+  {
+    "id": "neon",
+    "name": "Neon",
+    "desc": "Angular club UI · electric violet",
+    "sw": "linear-gradient(135deg,#c084fc,#21103e)"
+  },
+  {
+    "id": "amoled",
+    "name": "Amoled",
+    "desc": "Pure black · crisp and minimal",
+    "sw": "linear-gradient(135deg,#333,#000)"
+  },
+  {
+    "id": "forest",
+    "name": "Forest",
+    "desc": "Organic editorial · leaf green",
+    "sw": "linear-gradient(135deg,#a8e6a1,#10291b)"
+  },
+  {
+    "id": "candy",
+    "name": "Candy",
+    "desc": "Playful rounded · pink plum",
+    "sw": "linear-gradient(135deg,#ff91ce,#321a3b)"
+  },
+  {
+    "id": "ice",
+    "name": "Ice",
+    "desc": "Arctic glass · cool cyan",
+    "sw": "linear-gradient(135deg,#70e0f5,#102b3b)"
+  },
+  {
+    "id": "sakura",
+    "name": "Sakura",
+    "desc": "Rose editorial · feminine and elegant",
+    "sw": "linear-gradient(135deg,#ffb5d2,#4a1e35)"
+  },
+  {
+    "id": "aurora",
+    "name": "Aurora",
+    "desc": "Cinematic midnight · teal and indigo",
+    "sw": "linear-gradient(135deg,#66e6d2,#526ce5)"
+  },
+  {
+    "id": "velvet",
+    "name": "Velvet",
+    "desc": "Luxury lounge · burgundy and gold",
+    "sw": "linear-gradient(135deg,#e8bd75,#3a1c1b)"
+  }
+]
+</script></body></html>
