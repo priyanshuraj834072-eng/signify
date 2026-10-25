@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "artists": {
+      ".read": true,
+      ".write": "auth != null && auth.uid == 'hXvvFNdMvyOMihZVI7WXgVE9wqP2'"
+    },
+    "trendw": {
+      "$week": {
+        ".read": true,
+        ".indexOn": ["s"],
+        "$sid": {
+          ".write": "auth != null && newData.exists()",
+          ".validate": "newData.hasChildren(['s','t','a','i'])",
+          "s": { ".validate": "newData.isNumber() && newData.val() - (data.exists() ? data.val() : 0) >= 1 && newData.val() - (data.exists() ? data.val() : 0) <= 90" },
+          "t": { ".validate": "newData.isString() && newData.val().length <= 150" },
+          "a": { ".validate": "newData.isString() && newData.val().length <= 200" },
+          "i": { ".validate": "newData.isString() && newData.val().length <= 400" },
+          "$other": { ".validate": false }
+        }
+      }
+    }
+  }
+}

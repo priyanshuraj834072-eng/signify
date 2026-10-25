@@ -161,3 +161,70 @@
     };
   }
 })();
+
+/* Edge-to-edge (UI behind the status bar) and "new app version" popup. Needs the Android app build 20 or newer; older builds just ignore it. */
+(function () {
+  var C = window.Capacitor;
+  if (!C || !(C.isNativePlatform ? C.isNativePlatform() : (C.getPlatform && C.getPlatform() !== 'web'))) return;
+  var de = document.documentElement;
+  var isLight = function () {
+    if (de.dataset && de.dataset.theme) return de.dataset.theme === 'light';
+    try { return JSON.parse(localStorage.getItem('sg_theme')) === 'light'; } catch (e) { return false; }
+  };
+  /* dark theme: the app draws behind the status bar. light theme: normal bar, so the white icons stay readable. */
+  window.sgEdgeSync = function () {
+    try {
+      if (!window.SGEdge) return;
+      var light = isLight();
+      de.style.setProperty('--sat', light ? '0px' : (SGEdge.top() + 'px'));
+      SGEdge.enable(!light);
+    } catch (e) {}
+  };
+  window.sgEdgeSync();
+  document.addEventListener('DOMContentLoaded', function () { window.sgEdgeSync(); });
+
+  /* version.json: { "apk": { "build": 21, "url": "...", "mandatory": false, "message": "..." } } */
+  var AP = (C.Plugins || {}).App;
+  if (AP && AP.getInfo) {
+    setTimeout(function () {
+      AP.getInfo().then(function (info) {
+        var mine = parseInt(info && info.build, 10) || 0;
+        return fetch('/version.json?' + Date.now(), { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (v) {
+            var a = v && v.apk;
+            if (!a || !a.url || (parseInt(a.build, 10) || 0) <= mine) return;
+            showApk(a);
+          });
+      }).catch(function () {});
+    }, 4000);
+  }
+  function showApk(a) {
+    if (document.getElementById('sgApk')) return;
+    var w = document.createElement('div');
+    w.id = 'sgApk';
+    w.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:24px;font-family:inherit';
+    var c = document.createElement('div');
+    c.style.cssText = 'width:100%;max-width:340px;background:#1a1812;color:#f4efe4;border-radius:24px;padding:24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)';
+    var h = document.createElement('div');
+    h.textContent = 'New Singify app available';
+    h.style.cssText = 'font-size:20px;font-weight:800;margin-bottom:8px';
+    var p = document.createElement('div');
+    p.textContent = a.message || 'A new version of the app is ready. Download it and install it over the old one. Your login and data stay.';
+    p.style.cssText = 'font-size:14px;opacity:.8;line-height:1.5;margin-bottom:20px';
+    var d = document.createElement('button');
+    d.textContent = 'Download';
+    d.style.cssText = 'width:100%;border:0;border-radius:99px;padding:14px;font-size:16px;font-weight:800;background:#e8b93d;color:#1a1200';
+    d.onclick = function () { location.href = a.url; };
+    c.appendChild(h); c.appendChild(p); c.appendChild(d);
+    if (!a.mandatory) {
+      var l = document.createElement('button');
+      l.textContent = 'Later';
+      l.style.cssText = 'width:100%;border:0;background:none;color:#f4efe4;opacity:.7;margin-top:10px;padding:10px;font-size:14px';
+      l.onclick = function () { w.remove(); };
+      c.appendChild(l);
+    }
+    w.appendChild(c);
+    document.body.appendChild(w);
+  }
+})();
