@@ -1,6 +1,6 @@
 {
-  "version": "1.1.1",
-  "minimum": "1.1.1",
-  "mandatory": true,
-  "message": "Naye themes, naya player aur kuch fixes aaye hain."
+  "version": "1.2.0",
+  "minimum": "1.0.0",
+  "mandatory": false,
+  "message": "Trending, Simple/Extreme mode aur fixes aaye hain."
 }
