@@ -25,46 +25,60 @@ html[data-ui=amoled] body::before{background:#000!important}
 html[data-ui=forest]{--ur:28px;--pd:.55s;--ease:cubic-bezier(.16,.84,.3,1)}
 html[data-ui=forest]:not([data-theme=light]){--bg:#04100a;--ps:#0a2015;--panel:rgba(12,40,26,.7);--card:rgba(120,230,160,.08);--line:rgba(140,230,170,.16);--tx:#e9fff0;--mut:#8fb9a0;--g1:rgba(120,230,160,.12);--g2:rgba(40,120,70,.05);--gb:rgba(150,235,180,.22);--gh:rgba(210,255,225,.3);--sh:rgba(0,30,10,.5)}
 
-/* 4. Liquid Glass: translucent blue-violet surfaces, restrained blur for smooth performance */
-html[data-ui=liquid]{--ur:24px;--pd:.22s;--ease:cubic-bezier(.2,.8,.2,1)}
-html[data-ui=liquid]:not([data-theme=light]){--bg:#080d1b;--ps:#101a30;--panel:rgba(25,38,66,.76);--card:rgba(160,190,255,.09);--line:rgba(180,205,255,.2);--tx:#f4f7ff;--mut:#a7b5d4;--g1:rgba(110,140,255,.13);--g2:rgba(70,100,200,.05);--gb:rgba(180,205,255,.28);--gh:rgba(220,230,255,.35);--sh:rgba(4,10,30,.35)}
-html[data-ui=liquid] #bar,html[data-ui=liquid] #tabs,html[data-ui=liquid] .sheet>div{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* Retro removed: replaced with lightweight, visibly distinct themes. */
 
 /* 5. Candy: plum pink, extra round, bouncy */
-html[data-ui=candy]{--ur:32px;--pd:.28s;--ease:cubic-bezier(.2,.8,.2,1)}
+html[data-ui=candy]{--ur:32px;--pd:.45s;--ease:cubic-bezier(.34,1.56,.64,1)}
 html[data-ui=candy]:not([data-theme=light]){--bg:#1b0a24;--ps:#2d1040;--panel:rgba(60,20,80,.72);--card:rgba(255,130,200,.12);--line:rgba(255,150,210,.28);--tx:#fff0fa;--mut:#d9a5cf;--g1:rgba(255,130,200,.2);--g2:rgba(150,60,200,.08);--gb:rgba(255,170,220,.4);--gh:rgba(255,220,240,.45);--sh:rgba(120,20,90,.4)}
 
-/* 6. Ice: cold navy-teal, light glass, restrained blur */
-html[data-ui=ice]{--ur:22px;--pd:.22s;--ease:cubic-bezier(.25,.8,.25,1)}
-html[data-ui=ice]:not([data-theme=light]){--bg:#03111a;--ps:#08283a;--panel:rgba(10,50,72,.7);--card:rgba(160,225,255,.1);--line:rgba(170,230,255,.2);--tx:#eafaff;--mut:#8fb8cc;--g1:rgba(170,230,255,.14);--g2:rgba(60,150,200,.06);--gb:rgba(190,240,255,.3);--gh:rgba(230,250,255,.45);--sh:rgba(0,40,70,.4)}
-html[data-ui=ice] #bar,html[data-ui=ice] #tabs,html[data-ui=ice] .sheet>div{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* 6. Ice: cold navy-teal, heavy glass, calm smooth */
+html[data-ui=ice]{--ur:22px;--pd:.35s;--ease:cubic-bezier(.25,.8,.25,1)}
+html[data-ui=ice]:not([data-theme=light]){--bg:#03111a;--ps:#08283a;--panel:rgba(10,50,72,.55);--card:rgba(160,225,255,.1);--line:rgba(170,230,255,.2);--tx:#eafaff;--mut:#8fb8cc;--g1:rgba(170,230,255,.18);--g2:rgba(60,150,200,.06);--gb:rgba(190,240,255,.3);--gh:rgba(230,250,255,.45);--sh:rgba(0,40,70,.5)}
+html[data-ui=ice] #bar,html[data-ui=ice] #tabs,html[data-ui=ice] .sheet>div{-webkit-backdrop-filter:blur(30px) saturate(1.7);backdrop-filter:blur(30px) saturate(1.7)}
 
-/* 7. Sunset: warm orange, rose and deep navy */
-html[data-ui=sunset]{--ur:18px;--pd:.2s;--ease:cubic-bezier(.2,.8,.2,1)}
-html[data-ui=sunset]:not([data-theme=light]){--bg:#180d18;--ps:#2b1424;--panel:rgba(55,25,38,.78);--card:rgba(255,160,110,.1);--line:rgba(255,170,130,.22);--tx:#fff4ed;--mut:#d5aaa0;--g1:rgba(255,130,80,.14);--g2:rgba(120,40,70,.06);--gb:rgba(255,175,130,.28);--gh:rgba(255,220,190,.32);--sh:rgba(20,5,15,.4)}
 
-/* 8. Midnight Blue: crisp blue-black, flat and efficient */
-html[data-ui=midnight]{--ur:16px;--pd:.16s;--ease:cubic-bezier(.2,.7,.2,1)}
-html[data-ui=midnight]:not([data-theme=light]){--bg:#060b16;--ps:#0b1426;--panel:#101c31;--card:#101b2d;--line:#263a59;--tx:#edf4ff;--mut:#91a7c7;--g1:#101b2d;--g2:#0b1426;--gb:#2a4164;--gh:transparent;--sh:rgba(0,0,0,.3)}
-html[data-ui=midnight] *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* 7. Sakura: feminine rose / berry palette, rounded typography, gentle lift-on-hover.
+   No continuous animation or backdrop blur, to keep scrolling smooth on phones. */
+html[data-ui=sakura]{--ur:24px;--pd:.22s;--ease:cubic-bezier(.2,.8,.2,1)}
+html[data-ui=sakura]:not([data-theme=light]){--bg:#160913;--ps:#26101e;--panel:#281321;--card:rgba(255,133,190,.09);--line:rgba(255,155,205,.24);--tx:#fff0f7;--mut:#d3a0b8;--g1:rgba(255,92,165,.13);--g2:rgba(110,25,75,.08);--gb:rgba(255,150,205,.3);--gh:rgba(255,205,230,.22);--sh:rgba(65,5,35,.28)}
+html[data-ui=sakura] body{font-family:ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-ui=sakura] .card,html[data-ui=sakura] .skc,html[data-ui=sakura] .sheet>div{border:1px solid rgba(255,155,205,.16)}
+html[data-ui=sakura] .btn,html[data-ui=sakura] #bar{border-radius:999px}
+html[data-ui=sakura] .card{transition:transform .18s ease,border-color .18s ease}
+@media(hover:hover){html[data-ui=sakura] .card:hover{transform:translateY(-2px);border-color:rgba(255,155,205,.42)}}
 
-/* 9. Lavender: calm lilac and charcoal, clean modern surfaces */
-html[data-ui=lavender]{--ur:20px;--pd:.2s;--ease:cubic-bezier(.2,.8,.2,1)}
-html[data-ui=lavender]:not([data-theme=light]){--bg:#100d1c;--ps:#1c1730;--panel:rgba(35,28,57,.82);--card:rgba(190,160,255,.09);--line:rgba(190,170,255,.2);--tx:#f7f2ff;--mut:#b6a9d3;--g1:rgba(170,130,255,.13);--g2:rgba(100,70,170,.05);--gb:rgba(200,180,255,.25);--gh:rgba(230,220,255,.3);--sh:rgba(10,5,25,.4)}
+/* 8. Aurora: midnight teal + electric violet, crisp editorial text, small accent line. */
+html[data-ui=aurora]{--ur:16px;--pd:.2s;--ease:cubic-bezier(.2,.7,.2,1)}
+html[data-ui=aurora]:not([data-theme=light]){--bg:#060b18;--ps:#0b1527;--panel:#101b30;--card:rgba(95,230,213,.07);--line:rgba(105,218,220,.2);--tx:#effaff;--mut:#9ab9cf;--g1:rgba(65,215,200,.11);--g2:rgba(120,90,255,.07);--gb:rgba(100,235,220,.26);--gh:rgba(140,180,255,.28);--sh:rgba(0,8,25,.32)}
+html[data-ui=aurora] body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-ui=aurora] .card,html[data-ui=aurora] .skc{border-left:2px solid rgba(100,235,220,.35)}
+html[data-ui=aurora] .btn{border-radius:12px}
+html[data-ui=aurora] #bar{border:1px solid rgba(100,235,220,.22)}
+html[data-ui=aurora] .card{transition:transform .14s ease,border-color .14s ease}
+html[data-ui=aurora] .card:active{transform:scale(.985)}
 
+/* 9. Velvet: wine red + champagne gold, elegant serif headings, no costly filters. */
+html[data-ui=velvet]{--ur:12px;--pd:.24s;--ease:cubic-bezier(.2,.75,.25,1)}
+html[data-ui=velvet]:not([data-theme=light]){--bg:#12090e;--ps:#211018;--panel:#28131c;--card:rgba(232,185,115,.065);--line:rgba(222,177,111,.23);--tx:#fff3e4;--mut:#c9a99a;--g1:rgba(190,95,105,.1);--g2:rgba(100,35,48,.07);--gb:rgba(225,185,120,.27);--gh:rgba(255,220,165,.2);--sh:rgba(20,0,8,.35)}
+html[data-ui=velvet] body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+html[data-ui=velvet] h1,html[data-ui=velvet] h2,html[data-ui=velvet] h3,html[data-ui=velvet] .logo{font-family:Georgia,"Times New Roman",serif;letter-spacing:.2px}
+html[data-ui=velvet] .card,html[data-ui=velvet] .skc{border-bottom:1px solid rgba(225,185,120,.26)}
+html[data-ui=velvet] .btn{border-radius:10px;transition:transform .14s ease,background-color .14s ease}
+html[data-ui=velvet] .btn:active{transform:translateY(1px)}
+
+/* Keep all motion short and respect the device's reduced-motion preference. */
+@media(prefers-reduced-motion:reduce){html[data-ui] *,html[data-ui] *::before,html[data-ui] *::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style></head>
 <body>
 <script type="application/json" id="uithemes">
 [
  {"id":"neon","name":"Neon","desc":"Glowing violet, sharp and snappy","sw":"linear-gradient(135deg,#b45cff,#2a0a5e)"},
  {"id":"amoled","name":"Amoled","desc":"Pure black, flat and fast","sw":"linear-gradient(135deg,#2a2a2e,#000)"},
- {"id":"forest","name":"Forest","desc":"Deep green, soft and natural","sw":"linear-gradient(135deg,#5fe39a,#0a2a1a)"},
- {"id":"liquid","name":"Liquid Glass","desc":"Blue-violet glass with subtle blur","sw":"linear-gradient(135deg,#b6c5ff,#222e65)"},
- {"id":"candy","name":"Candy","desc":"Plum pink, round and playful","sw":"linear-gradient(135deg,#ff7ac8,#4a1466)"},
- {"id":"ice","name":"Ice","desc":"Cool teal, clean glass","sw":"linear-gradient(135deg,#7fdcff,#08283a)"},
- {"id":"sunset","name":"Sunset","desc":"Warm rose and amber glow","sw":"linear-gradient(135deg,#ffb06b,#6b2145)"},
- {"id":"midnight","name":"Midnight Blue","desc":"Crisp blue-black, extra smooth","sw":"linear-gradient(135deg,#5d8edb,#060b16)"},
- {"id":"lavender","name":"Lavender","desc":"Soft lilac with elegant dark surfaces","sw":"linear-gradient(135deg,#c9a8ff,#30234f)"}
-]
-</script>
+ {"id":"forest","name":"Forest","desc":"Deep green, soft and calm","sw":"linear-gradient(135deg,#5fe39a,#0a2a1a)"},
+ {"id":"candy","name":"Candy","desc":"Plum pink, round and bouncy","sw":"linear-gradient(135deg,#ff7ac8,#4a1466)"},
+ {"id":"ice","name":"Ice","desc":"Cold teal, glassy and smooth","sw":"linear-gradient(135deg,#7fdcff,#08283a)"},
+ {"id":"sakura","name":"Sakura","desc":"Rose-pink, soft rounded style","sw":"linear-gradient(135deg,#ff9dca,#551538)"},
+ {"id":"aurora","name":"Aurora","desc":"Teal-violet, crisp modern style","sw":"linear-gradient(135deg,#61eed6,#6758d9,#091529)"},
+ {"id":"velvet","name":"Velvet","desc":"Wine red, champagne-gold elegance","sw":"linear-gradient(135deg,#e6bd7a,#521b31,#170910)"}
+]</script>
 </body></html>
