@@ -1,6 +1,6 @@
 {
-  "version": "1.2.5",
+  "version": "1.2.6",
   "minimum": "1.2.2",
   "mandatory": false,
-  "message": "Trending, Simple/Extreme mode aur fixes aaye hain."
+  "message": "adding themes."
 }
