@@ -124,8 +124,40 @@
   /* Google sign-in: use the native Google dialog (Google blocks login inside a WebView) */
   var FA = P.FirebaseAuthentication;
   if (FA && FA.signInWithGoogle) {
+    /* If the person backs out of the Google account list the plugin may never answer.
+       So: when the app comes back to the front and still nothing arrived after 3 seconds,
+       treat it as cancelled. */
     window.SG_GSIGN = function () {
-      return FA.signInWithGoogle().then(function (r) { return (r && r.credential) || {}; });
+      return new Promise(function (resolve, reject) {
+        var done = false, left = false, tm = null;
+        var cleanup = function () {
+          clearTimeout(tm);
+          document.removeEventListener('visibilitychange', vc);
+          window.removeEventListener('blur', bl);
+          window.removeEventListener('focus', fc);
+        };
+        var fin = function (f, v) { if (done) return; done = true; cleanup(); f(v); };
+        var away = function () { left = true; clearTimeout(tm); };
+        var back = function () {
+          if (!left) return;
+          clearTimeout(tm);
+          tm = setTimeout(function () { fin(reject, new Error('cancelled')); }, 3000);
+        };
+        var vc = function () { if (document.visibilityState === 'hidden') away(); else back(); };
+        var bl = function () { away(); };
+        var fc = function () { back(); };
+        document.addEventListener('visibilitychange', vc);
+        window.addEventListener('blur', bl);
+        window.addEventListener('focus', fc);
+        FA.signInWithGoogle().then(
+          function (r) { fin(resolve, (r && r.credential) || {}); },
+          function (e) { fin(reject, e); }
+        );
+      });
+    };
+    /* sign out of the native Google session too, so the next login shows the account list again */
+    window.SG_GSIGNOUT = function () {
+      safe(function () { return FA.signOut(); });
     };
   }
 })();
