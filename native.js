@@ -95,6 +95,7 @@
 
   /* back button: close layers/pages like the web, minimise the app on Home */
   var AP = P.App;
+  var exitT = 0;
   if (AP && AP.addListener) {
     safe(function () {
       return AP.addListener('backButton', function () {
@@ -103,8 +104,15 @@
         var h = location.hash || '#/home';
         var layers = (typeof LAY !== 'undefined' && LAY.length) ? LAY.length : 0;
         var atHome = (h === '#/home' || h === '#/' || h === '#') && !document.body.classList.contains('now') && !layers;
-        if (atHome || history.length <= 1) safe(function () { return AP.minimizeApp(); });
-        else history.back();
+        if (atHome || history.length <= 1) {
+          /* press Back twice to leave the app (message is the app's own toast) */
+          var now = Date.now();
+          if (now - exitT < 2000) { safe(function () { return AP.exitApp(); }); return; }
+          try {
+            if (typeof toast === 'function') { exitT = now; toast('Press back again to exit'); return; }
+          } catch (e) {}
+          safe(function () { return AP.minimizeApp(); });
+        } else history.back();
       });
     });
   }
@@ -174,8 +182,46 @@
       de.classList.add('sgedge');
       de.style.setProperty('--sat', SGEdge.top() + 'px');
       SGEdge.enable(true);
+      setTimeout(window.sgBarSync, 80);
     } catch (e) {}
   };
+
+  /* colour of the area behind the gesture / navigation bar: the app's bottom bar colour when it spans the full width, otherwise the page colour. Needs an app build that has SGEdge.bar; older builds skip it. */
+  var rgb = function (s) {
+    var m = String(s).match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    var p = m[1].split(',').map(function (x) { return parseFloat(x); });
+    return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+  };
+  var over = function (f, b) {
+    return { r: f.r * f.a + b.r * (1 - f.a), g: f.g * f.a + b.g * (1 - f.a), b: f.b * f.a + b.b * (1 - f.a), a: 1 };
+  };
+  var lastBar = '';
+  window.sgBarSync = function () {
+    try {
+      if (!window.SGEdge || !SGEdge.bar) return;
+      var page = rgb(getComputedStyle(de).backgroundColor) || { r: 10, g: 9, b: 7, a: 1 };
+      page = over(page, { r: 10, g: 9, b: 7 });
+      var c = page, n = document.getElementById('tabs');
+      if (n) {
+        var r = n.getBoundingClientRect();
+        if (r.height > 0 && r.left <= 1 && r.right >= innerWidth - 1 && r.bottom >= innerHeight - 1) {
+          var nc = rgb(getComputedStyle(n).backgroundColor);
+          if (nc && nc.a > 0) c = over(nc, page);
+        }
+      }
+      var h = function (v) { v = Math.max(0, Math.min(255, Math.round(v))); return (v < 16 ? '0' : '') + v.toString(16); };
+      var hex = '#' + h(c.r) + h(c.g) + h(c.b);
+      if (hex === lastBar) return;
+      lastBar = hex;
+      SGEdge.bar(hex, (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) > 150);
+    } catch (e) {}
+  };
+  try {
+    var bt = 0;
+    new MutationObserver(function () { clearTimeout(bt); bt = setTimeout(window.sgBarSync, 250); })
+      .observe(de, { attributes: true, attributeFilter: ['data-theme', 'data-ui', 'data-skin', 'class'] });
+  } catch (e) {}
   /* Android can reset the window after a fast cold start (splash screen, resume). So the command is repeated:
      right now, a few times shortly after, and every time the app comes back to the front. It is safe to repeat. */
   var edgeBurst = function () {
