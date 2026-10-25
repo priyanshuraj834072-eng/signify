@@ -167,17 +167,13 @@
   var C = window.Capacitor;
   if (!C || !(C.isNativePlatform ? C.isNativePlatform() : (C.getPlatform && C.getPlatform() !== 'web'))) return;
   var de = document.documentElement;
-  var isLight = function () {
-    if (de.dataset && de.dataset.theme) return de.dataset.theme === 'light';
-    try { return JSON.parse(localStorage.getItem('sg_theme')) === 'light'; } catch (e) { return false; }
-  };
-  /* dark theme: the app draws behind the status bar. light theme: normal bar, so the white icons stay readable. */
+  /* dark and light theme: the app draws behind the status bar. In the light theme a soft dark strip (CSS .sgedge) is drawn under the bar so the white time/battery icons stay readable. */
   window.sgEdgeSync = function () {
     try {
       if (!window.SGEdge) return;
-      var light = isLight();
-      de.style.setProperty('--sat', light ? '0px' : (SGEdge.top() + 'px'));
-      SGEdge.enable(!light);
+      de.classList.add('sgedge');
+      de.style.setProperty('--sat', SGEdge.top() + 'px');
+      SGEdge.enable(true);
     } catch (e) {}
   };
   /* Android can reset the window after a fast cold start (splash screen, resume). So the command is repeated:

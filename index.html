@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#070a16"><link rel="manifest" href="/manifest.json"><link rel="icon" href="/icons/favicon.png?v=3"><link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=3"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Singify">
-<title>Singify</title><script src="/native.js"></script><script>try{var uc=localStorage.getItem('sg_uicss'),ut=JSON.parse(localStorage.getItem('sg_ui'));if(ut&&ut!=='default'&&uc){var us=document.createElement('style');us.id='uicss';us.textContent=uc;document.head.appendChild(us);document.documentElement.dataset.ui=ut}}catch(e){}try{var tt=JSON.parse(localStorage.getItem('sg_th2'));if(tt==='light'||(tt!=='dark'&&matchMedia('(prefers-color-scheme: light)').matches))document.documentElement.dataset.theme='light'}catch(e){}try{if(JSON.parse(localStorage.getItem('sg_ext'))!==true)document.documentElement.classList.add('lite','simple')}catch(e){}try{var k=JSON.parse(localStorage.getItem('sg_skin'));if(k&&k!=='auto')document.documentElement.dataset.skin=k}catch(e){}</script>
+<title>Singify</title><script src="/native.js"></script><script>try{var uc=localStorage.getItem('sg_uicss'),ut=JSON.parse(localStorage.getItem('sg_ui'));if(ut&&ut!=='default'&&uc){var us=document.createElement('style');us.id='uicss';us.textContent=uc;document.head.appendChild(us);document.documentElement.dataset.ui=ut}}catch(e){}try{var pm=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark',tt=JSON.parse(localStorage.getItem('sg_th2'));if(typeof tt==='string')tt={t:tt,p:pm};if((tt&&tt.p===pm?tt.t:pm)==='light')document.documentElement.dataset.theme='light'}catch(e){}try{if(JSON.parse(localStorage.getItem('sg_ext'))!==true)document.documentElement.classList.add('lite','simple')}catch(e){}try{var k=JSON.parse(localStorage.getItem('sg_skin'));if(k&&k!=='auto')document.documentElement.dataset.skin=k}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -369,6 +369,7 @@ body.now #bar,body.now #tabs,body.now #side,body.now #qp,body.now .sheet>div,bod
 html.mixon body::before{background:var(--bg)!important}
 html.mixon *,html.mixon *::before,html.mixon *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 html.mixon #bar,html.mixon #tabs,html.mixon .sheet>div,html.mixon #dlg>div,html.mixon #toast,html.mixon #side,html.mixon #qp{background:var(--ps)}
+.sgedge[data-theme=light] body::after{content:"";position:fixed;top:0;left:0;right:0;height:var(--sat,0px);background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0));z-index:99998;pointer-events:none}
 .stg{border:1px solid var(--line);background:var(--card);border-radius:var(--r-row,18px);overflow:hidden;margin:6px 0 4px;max-width:520px}
 .sgr{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:12px 16px;text-align:left;font-size:15px;font-weight:600;color:var(--tx);border-bottom:1px solid var(--line);background:none}
 .stg>.sgr:last-child{border-bottom:0}.sgr>span{flex:1;min-width:0}.sgr i{width:34px;height:22px;border-radius:7px;flex:none}.sgr em{font-style:normal;color:var(--mut);font-size:13.5px;font-weight:500}.sgr svg{width:18px;height:18px;color:var(--mut);flex:none}
@@ -578,7 +579,10 @@ const MIXES=[['Daily Mix 1','Arijit Singh, Pritam, KK and more','arijit singh to
 let C={},lists={},liked=ls('sg_liked',[]),hist=ls('sg_hist',[]),Q=[],qi=-1,shuf=false,rep=false,VN='Singify',LE='',shown='';
 const SPOS={},A=new Audio();A.preload='auto';A.setAttribute('playsinline','');A.style.display='none';document.body.appendChild(A);
 let PC=ls('sg_pc',{}),PLS=ls('sg_pl',[]),DLS=ls('sg_dl',[]),ACT=ls('sg_act',[]),ST=ls('sg_st',{plays:0,secs:0,art:{}}),NAME=ls('sg_name','Singer'),LF='pl',OU='',pst=0;
-let fails=0,THEME=ls('sg_th2',null)||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');const AP={};let RESUME=null,SWIPED=0,LTT=0;const sm=u=>(u||'').replace('500x500','150x150');const badImg=u=>/artist-default|default-film|default-music/i.test(u||'');
+const phoneM=()=>{try{return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){return'dark'}};
+/* the user's own Dark/Light choice is kept only while the phone stays in the same mode; when the phone switches (night/day) the app follows the phone again */
+function themePick(){const pm=phoneM();let t=ls('sg_th2',null);if(typeof t==='string')t={t:t,p:pm};return t&&t.p===pm&&(t.t==='dark'||t.t==='light')?t.t:pm}
+let fails=0,THEME=themePick();const AP={};let RESUME=null,SWIPED=0,LTT=0;const sm=u=>(u||'').replace('500x500','150x150');const badImg=u=>/artist-default|default-film|default-music/i.test(u||'');
 const artPic=(id,n)=>AP['id'+id+n]||(AP['id'+id+n]=ex('/api/search/artists',n).then(r=>{const m=r.find(x=>String(x.id)===String(id))||r[0];return m?pic(m):''}));
 /* ---------- liquid glass: colours follow the playing song's cover ---------- */
 let GL=ls('sg_ext',false)===true;
@@ -664,11 +668,12 @@ function settingsV(){
  </div>
  ${FU?'<h2>Account</h2><div class="stg"><button class="sgr tp bad" data-set="logout"><span>Log out</span></button></div>':''}
  <p style="color:var(--mut);font-size:12px;margin-top:18px">Singify v5</p></div>`;instUI()}
-function setTheme(t,auto){THEME=t;sv('sg_theme',t);if(!auto)sv('sg_th2',t);document.documentElement.dataset.theme=t;try{window.sgEdgeSync&&sgEdgeSync()}catch(e){}const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#eef1fb':'#070a16';$$('[data-th]').forEach(b=>b.classList.toggle('on',b.dataset.th===t));themeUI()}
+function setTheme(t,auto){THEME=t;sv('sg_theme',t);if(!auto)sv('sg_th2',{t:t,p:phoneM()});document.documentElement.dataset.theme=t;try{window.sgEdgeSync&&sgEdgeSync()}catch(e){}const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light'?'#eef1fb':'#070a16';$$('[data-th]').forEach(b=>b.classList.toggle('on',b.dataset.th===t));themeUI()}
 const MIXI_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="mxg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5fa2"/><stop offset=".45" stop-color="#ffb63a"/><stop offset="1" stop-color="#3ad0ff"/></linearGradient></defs><path class="mxf" d="M10 4Q11.4 11.6 19 13Q11.4 14.4 10 22Q8.6 14.4 1 13Q8.6 11.6 10 4Z"/><path class="mxf" d="M19 1.5Q19.7 4.8 23 5.5Q19.7 6.2 19 9.5Q18.3 6.2 15 5.5Q18.3 4.8 19 1.5Z"/></svg>';
 function mixUI(){const b=$('#mixBtn');if(!b)return;if(!b.firstChild)b.innerHTML=MIXI_SVG;b.classList.toggle('on',!!MIX);b.setAttribute('aria-pressed',!!MIX);b.setAttribute('aria-label',MIX?'Mix themes: on':'Mix themes: off')}
 const themeUI=()=>{const b=$('#themeBtn');if(b&&!b.firstChild)b.innerHTML=ic('gear')};
-try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',e=>{if(!ls('sg_th2',null))setTheme(e.matches?'light':'dark',1)})}catch(e){}
+try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',()=>{try{localStorage.removeItem('sg_th2')}catch(e){}setTheme(phoneM(),1)})}catch(e){}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)return;const t=themePick();if(t!==THEME)setTheme(t,1)});
 if(ls('sg_av',0)<2){ST.art={};hist.forEach(s=>s.artist.split(',').map(x=>x.trim()).filter(Boolean).forEach(a=>ST.art[a]=(ST.art[a]||0)+1));sv('sg_st',ST);sv('sg_av',2)}
 let RS=ls('sg_rs',[]),SRR={},STK=0,STAB='all';const SRC={},TR=['Arijit Singh','AP Dhillon','Diljit Dosanjh','Shreya Ghoshal','KK','Atif Aslam','Badshah','Pritam','Ed Sheeran','Taylor Swift','Asha Bhosle','90s hits'];
 const LY={};let lyr=[],lyi=-1;
@@ -846,7 +851,7 @@ function drawS(){const R=SRR,e=$('#sr');if(!e)return;
  else if(STAB==='playlists')b=wrap(albRow(R.playlists),'c2');
  else b=`${R.songs.length?`<h2 style="margin-top:6px">Songs</h2><div class="tbl">${songRows(R.songs.slice(0,8),'sr')}</div>`:''}${R.artists.some(x=>x.m)?`<h2>Artists</h2><div class="scroll">${artRow(R.artists.filter(x=>x.m).slice(0,10))}</div>`:''}${R.albums.length?`<h2>Albums</h2><div class="scroll">${albRow(R.albums.slice(0,10))}</div>`:''}${R.playlists.length?`<h2>Playlists</h2><div class="scroll">${albRow(R.playlists.slice(0,10))}</div>`:''}`;
  e.innerHTML=`<div class="chips">${T.map(t=>`<span class="chip${STAB===t[0]?' on':''}" data-st="${t[0]}">${t[1]}${t[2]?' ('+t[2]+')':''}</span>`).join('')}</div>${b}`}
-function runS(q){const k=++STK;$('#sr').innerHTML=skel(6);
+function runS(q){const k=++STK;$('#sr').innerHTML=skel(6);{const c=$('#col');if(c)c.scrollTop=0;main.scrollTop=0}
  fullSearch(q).then(R=>{if(k!==STK||!$('#sr'))return;SRR=R;if(R.songs.length&&q.length>=3)saveRS(q);drawS()})}
 function emptyS(){STK++;const e=$('#sr');if(!e)return;if(document.body.classList.contains('ssm'))return drawRecents();
  const ch=l=>`<div class="chips" style="flex-wrap:wrap">${l.map(x=>`<span class="chip" data-sq="${esc(x)}">${esc(x)}</span>`).join('')}</div>`;
@@ -1300,7 +1305,7 @@ function cloudQ(k,v){try{if(!SYON||!FU||!DB||!SYK[k])return;SYQ[k]=JSON.stringif
 function cloudPush(){try{if(!FU||!DB||!SYON)return;const o=SYQ;SYQ={};DB.ref('users/'+FU.uid+'/d').update(o).catch(()=>{})}catch(e){}}
 async function wipeLocal(){try{A.pause();A.removeAttribute('src');A.load()}catch(e){}
  dlStash();
- ['sg_dl','sg_last','sg_lt','sg_fav','sg_prof','sg_av','sg_rs','sg_ri'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+ ['sg_dl','sg_last','sg_lt','sg_fav','sg_prof','sg_av','sg_rs','sg_ri','sg_dm'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
  DLS=[];RI=[];Q=[];qi=0;RESUME=null}
 function cloudWipe(){SYON=0;SYQ={};Object.keys(SYK).forEach(k=>localStorage.removeItem(k));try{localStorage.removeItem('sg_uid')}catch(e){}liked=[];PLS=[];hist=[];ACT=[];PC={};ST={plays:0,secs:0,art:{}};NAME='Singer';try{sidePL();ui();refresh()}catch(e){}}
 async function cloudLoad(u){SYON=0;if(!DB)return;const my=++CLT;
