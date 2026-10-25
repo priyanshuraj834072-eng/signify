@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0",
-  "minimum": "1.0.0",
+  "version": "1.2.1",
+  "minimum": "1.2.1",
   "mandatory": false,
   "message": "Trending, Simple/Extreme mode aur fixes aaye hain."
 }
