@@ -1,0 +1,55 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Singify UI themes</title>
+<!-- Singify theme.html: every UI theme lives here so index.html stays small.
+     A theme = palette + corner shapes + font + animation speed/feel.
+     Add a new theme: add one block in <style> and one line in the JSON list below.
+     The Colour UI (accent colour) still works on top of every theme. -->
+<style>
+/* shared hooks: --ur = corner radius, --ease = animation feel, --pd = page animation time */
+html[data-ui]{--pd:.3s}
+html[data-ui] .card img,html[data-ui] .skc,html[data-ui] .btn,html[data-ui] #bar,html[data-ui] .sheet>div,html[data-ui] #dlg>div,html[data-ui] #qp{border-radius:var(--ur,18px)}
+html[data-ui] .pg{animation-duration:var(--pd)}
+
+/* 1. Neon: dark violet, sharp corners, glowing lines, snappy */
+html[data-ui=neon]{--ur:8px;--pd:.18s;--ease:cubic-bezier(.2,1,.3,1)}
+html[data-ui=neon]:not([data-theme=light]){--bg:#05010f;--ps:#0d0524;--panel:rgba(20,6,48,.72);--card:rgba(150,80,255,.1);--line:rgba(180,110,255,.35);--tx:#f6eeff;--mut:#b49be0;--g1:rgba(170,90,255,.16);--g2:rgba(60,20,120,.06);--gb:rgba(190,120,255,.5);--gh:rgba(230,190,255,.55);--sh:rgba(150,60,255,.45)}
+html[data-ui=neon] .card,html[data-ui=neon] .skc,html[data-ui=neon] #bar{box-shadow:0 0 18px rgba(160,80,255,.28)}
+
+/* 2. Amoled: pure black, flat, no blur, very fast */
+html[data-ui=amoled]{--ur:14px;--pd:.14s;--ease:cubic-bezier(.3,0,.2,1)}
+html[data-ui=amoled]:not([data-theme=light]){--bg:#000;--ps:#000;--panel:#050505;--card:#0e0e10;--line:#202024;--tx:#fff;--mut:#8a8a93;--g1:#0e0e10;--g2:#0e0e10;--gb:#26262b;--gh:transparent;--sh:transparent}
+html[data-ui=amoled] *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-ui=amoled] body::before{background:#000!important}
+
+/* 3. Forest: deep green, big soft corners, slow floaty motion */
+html[data-ui=forest]{--ur:28px;--pd:.55s;--ease:cubic-bezier(.16,.84,.3,1)}
+html[data-ui=forest]:not([data-theme=light]){--bg:#04100a;--ps:#0a2015;--panel:rgba(12,40,26,.7);--card:rgba(120,230,160,.08);--line:rgba(140,230,170,.16);--tx:#e9fff0;--mut:#8fb9a0;--g1:rgba(120,230,160,.12);--g2:rgba(40,120,70,.05);--gb:rgba(150,235,180,.22);--gh:rgba(210,255,225,.3);--sh:rgba(0,30,10,.5)}
+
+/* 4. Retro: warm brown, mono font, square corners, stepped motion */
+html[data-ui=retro]{--ur:0px;--pd:.4s;--ease:steps(6,end)}
+html[data-ui=retro],html[data-ui=retro] *{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace!important;letter-spacing:-.2px}
+html[data-ui=retro]:not([data-theme=light]){--bg:#17110a;--ps:#241a0f;--panel:#201709;--card:#2b2010;--line:#6b5230;--tx:#f6e7c8;--mut:#b09a72;--g1:#2b2010;--g2:#2b2010;--gb:#6b5230;--gh:transparent;--sh:rgba(0,0,0,.5)}
+html[data-ui=retro] *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-ui=retro] body::before{background:#17110a!important}
+
+/* 5. Candy: plum pink, extra round, bouncy */
+html[data-ui=candy]{--ur:32px;--pd:.45s;--ease:cubic-bezier(.34,1.56,.64,1)}
+html[data-ui=candy]:not([data-theme=light]){--bg:#1b0a24;--ps:#2d1040;--panel:rgba(60,20,80,.72);--card:rgba(255,130,200,.12);--line:rgba(255,150,210,.28);--tx:#fff0fa;--mut:#d9a5cf;--g1:rgba(255,130,200,.2);--g2:rgba(150,60,200,.08);--gb:rgba(255,170,220,.4);--gh:rgba(255,220,240,.45);--sh:rgba(120,20,90,.4)}
+
+/* 6. Ice: cold navy-teal, heavy glass, calm smooth */
+html[data-ui=ice]{--ur:22px;--pd:.35s;--ease:cubic-bezier(.25,.8,.25,1)}
+html[data-ui=ice]:not([data-theme=light]){--bg:#03111a;--ps:#08283a;--panel:rgba(10,50,72,.55);--card:rgba(160,225,255,.1);--line:rgba(170,230,255,.2);--tx:#eafaff;--mut:#8fb8cc;--g1:rgba(170,230,255,.18);--g2:rgba(60,150,200,.06);--gb:rgba(190,240,255,.3);--gh:rgba(230,250,255,.45);--sh:rgba(0,40,70,.5)}
+html[data-ui=ice] #bar,html[data-ui=ice] #tabs,html[data-ui=ice] .sheet>div{-webkit-backdrop-filter:blur(30px) saturate(1.7);backdrop-filter:blur(30px) saturate(1.7)}
+</style></head>
+<body>
+<script type="application/json" id="uithemes">
+[
+ {"id":"neon","name":"Neon","desc":"Glowing violet, sharp and snappy","sw":"linear-gradient(135deg,#b45cff,#2a0a5e)"},
+ {"id":"amoled","name":"Amoled","desc":"Pure black, flat and fast","sw":"linear-gradient(135deg,#2a2a2e,#000)"},
+ {"id":"forest","name":"Forest","desc":"Deep green, soft and slow","sw":"linear-gradient(135deg,#5fe39a,#0a2a1a)"},
+ {"id":"retro","name":"Retro","desc":"Warm brown, square and stepped","sw":"linear-gradient(135deg,#d9a24a,#2b2010)"},
+ {"id":"candy","name":"Candy","desc":"Plum pink, round and bouncy","sw":"linear-gradient(135deg,#ff7ac8,#4a1466)"},
+ {"id":"ice","name":"Ice","desc":"Cold teal, heavy glass, smooth","sw":"linear-gradient(135deg,#7fdcff,#08283a)"}
+]
+</script>
+</body></html>
