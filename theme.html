@@ -30,6 +30,9 @@ html[data-ui][data-ui] .sheet>div{border-radius:var(--r-sheet,20px) var(--r-shee
 html[data-ui][data-ui] #dlg>div,html[data-ui][data-ui] #toast{border-radius:var(--r-dlg,20px)}
 html[data-ui][data-ui] .skc.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
 html[data-ui][data-ui] .hs,html[data-ui][data-ui] .mix,html[data-ui][data-ui] .genre{color:#fff}
+/* sticky search bar: no solid band over the theme's page glow while nothing scrolls under it */
+html[data-ui][data-ui] .sbw::after,html[data-ui][data-ui] .sbw::before{background:transparent}
+html[data-ui][data-ui] .sbw.stk::after,html[data-ui][data-ui] .sbw.stk::before,html[data-ui][data-ui] body.ssm .sbw::after,html[data-ui][data-ui] body.ssm .sbw::before{background:var(--bg)}
 html[data-ui][data-ui] .hs .btn:not(.g){background:rgba(0,0,0,.4);border-color:rgba(255,255,255,.35);box-shadow:none}
 @media(max-width:800px){
 html[data-ui][data-ui]{--nav:calc(var(--nv-h,60px) + var(--nv-bot,0px))}
