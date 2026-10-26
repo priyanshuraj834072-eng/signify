@@ -189,10 +189,10 @@ body:not(.paused) #now::before{animation:glow 5s ease-in-out infinite alternate}
 body.paused .mb b{animation-play-state:paused}
 @media(max-width:800px){
  :root{--bar:62px}
- #app{grid-template-columns:1fr;padding-bottom:calc(var(--bar) + var(--nav) + env(safe-area-inset-bottom) + 8px)}
+ #app{grid-template-columns:1fr;padding-bottom:0}
  #side,.prem,.pill,.tbh,.tbl .al{display:none}
  #top{padding:calc(10px + var(--sat,env(safe-area-inset-top,0px))) 14px 0}
- #main{padding:8px 16px 20px}
+ #main{padding:8px 16px calc(28px + var(--bar) + var(--nav) + env(safe-area-inset-bottom))}
  h1{font-size:26px}
  .tiles{grid-template-columns:1fr 1fr;gap:10px}.tile .th{width:52px;height:52px}
  .two{grid-template-columns:1fr}
