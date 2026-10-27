@@ -1,6 +1,6 @@
 {
   "version": "1.4.3",
-  "minimum": "1.4.0",
+  "minimum": "1.4.3",
   "mandatory": false,
   "message": "Similar songs queue, Daily Mood, weekly trending aur edge-to-edge aaye hain.",
   "apk": {
