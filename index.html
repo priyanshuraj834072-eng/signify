@@ -756,7 +756,6 @@ const skel=n=>Array(n).fill('<div class="sk"></div>').join('');
 const plItem=(p,i)=>`<a class="pl tp" href="${href(p[0],p[1])}"><div class="th" data-q="${esc(p[1])}" style="${bg(p[2])}"></div><div><b>${p[0]}</b><small>Playlist</small></div></a>`;
 /* ---------- views ---------- */
 function home(){
- NR.n=8;NR.auto=0;
  const h=new Date().getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
  main.innerHTML=`<div class="pg" id="hp"><div class="hd"><h1>${g}</h1><div class="hr"><button class="ibtn tp" data-inst="1">${ic('dl')}Install</button><a class="prem tp" href="#/stage">${ic('user')}Me</a></div></div>
  <div class="chips"><span class="chip on" data-hf="">All</span><span class="chip" data-hf="m">Music</span><span class="chip" data-hf="y">Made for you</span></div>
@@ -808,26 +807,10 @@ const mapPl=x=>({n:dec(x.name||x.title),img:pic(x),a:x.songCount?x.songCount+' s
 const entList=async(p,q,f)=>{try{const j=await api(p,{query:q,limit:14}),r=(j.data&&j.data.results)||[];return Array.isArray(r)?r.map(f).filter(x=>x.id&&x.img):[]}catch(e){return[]}};
 /* run jobs 3 at a time so the API is not hammered */
 const pool=async(fns,n=3)=>{const out=[];let i=0;await Promise.all(Array(n).fill(0).map(async()=>{while(i<fns.length){const k=i++;try{out[k]=await fns[k]()}catch(e){out[k]=[]}}}));return out};
-const NR={l:[],n:8,auto:0,done:0,qi:1,busy:0};
-const NRQ=()=>['new hindi songs '+YR,'latest bollywood songs '+YR,'new punjabi songs '+YR,'new songs '+YR,'new hindi love songs '+YR,'new haryanvi songs '+YR,'new english songs '+YR,'new hindi songs '+(YR-1),'new bollywood songs '+(YR-1)];
-function nrAdd(l){const have=new Set(NR.l.map(x=>x.id));let c=0;(l||[]).forEach(x=>{if(x&&x.url&&x.img&&!have.has(x.id)&&!NR.l.some(o=>sameSong(o,x))){NR.l.push(x);have.add(x.id);c++}});return c}
-async function nrMore(){const q=NRQ();let n=0;while(!n&&NR.qi<q.length){try{n=nrAdd(await search(q[NR.qi++]))}catch(e){}}if(!n)NR.done=1;return n}
-async function nrFirst(){const q=NRQ();let l=[];try{const r=await Promise.all([plSongs('New Releases',/new|latest|fresh/i),search(q[0])]);l=dedupe([...r[0],...r[1]])}catch(e){}NR.l=[];NR.qi=1;NR.done=0;nrAdd(l);return NR.l.slice()}
-const scAnc=el=>{let p=el&&el.parentElement;while(p&&p!==document.body&&p!==document.documentElement){if(/(auto|scroll)/.test(getComputedStyle(p).overflowY))return p;p=p.parentElement}return null};
-let NIO=null;
-function nrArm(){if(NIO){NIO.disconnect();NIO=null}const t=document.querySelector('#nrx .sms');if(!t)return;
- NIO=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){const ck=Date.now()-(window.NLS||0)<1200?20:10;window.NLS=Date.now();nrGrow(ck)}},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});NIO.observe(t)}
-function nrUI(){}
-function nrPaint(){const e=$('#trend');if(!e||!NR.l.length)return;lists.trend=NR.l.slice(0,NR.n);e.innerHTML=songRows(lists.trend,'trend');nrUI()}
-async function nrGrow(k){if(NR.busy)return;NR.busy=1;try{while(NR.n+k>NR.l.length&&!NR.done){if(!await nrMore())break}
- const from=NR.n;NR.n=Math.min(NR.l.length,NR.n+k);const e=$('#trend');if(e&&NR.n>from){lists.trend=NR.l.slice(0,NR.n);e.insertAdjacentHTML('beforeend',songRows(lists.trend,'trend',from))}
- nrUI()}catch(x){}finally{NR.busy=0}}
 function heroTrend(d){
  const T=d.trend||[],e=$('#trend');if(!e)return;
  TAPI=T;heroFill(trendMerge(T));trendListen();trendUI();
- if(Array.isArray(d.nr)&&d.nr.length&&!NR.l.length){NR.l=d.nr.slice();NR.qi=1}
- if(NR.l.length){if(!NR.auto)nrPaint()}
- else e.innerHTML=Array.isArray(d.nr)||!T.length?`<div class="msg" style="grid-column:1/-1">Could not load songs.${why()}<br><button class="btn tp" id="hretry" style="margin-top:12px">Try again</button></div>`:skel(6);
+ nrHome(d,e);
  const b=$('#hretry');if(b)b.onclick=()=>{try{localStorage.removeItem(HK)}catch(x){}home()};
  const rp=$('#rp');if(rp&&!rp.innerHTML.trim()&&T.length)rp.innerHTML=cards(T.slice(14,26).length?T.slice(14,26):T.slice(0,12),'rpd')}
 function shelvesFill(d){
@@ -873,16 +856,6 @@ function entSongs(type,id,name){const k=type+'|'+(id||name),m=ecm(),c=m[k];
  const net=()=>entNet(type,id,name).then(r=>{if(r.length){m[k]={t:Date.now(),l:r.slice(0,150).map(slimS)};lru(m,'',5);sv(ECK,m)}return r});
  if(c&&c.l&&c.l.length){c.l.forEach(s=>C[s.id]=s);if(Date.now()-c.t>ECTTL)setTimeout(net,3000);return Promise.resolve(c.l)}
  return net()}
-const moreS=R=>(R.sn<R.songs.length||(!R.done&&R.songs.length>=20))?(R.auto?'<div class="sms" id="sms"></div>':'<div class="smw"><button class="btn tp" data-sm="1">Show more</button></div>'):'';
-let SIO=null,SLB=0,LST=0;
-function armS(){if(SIO){SIO.disconnect();SIO=null}const t=$('#sms');if(!t||STAB!=='songs')return;
- SIO=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting))loadMoreS()},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});SIO.observe(t)}
-async function loadMoreS(){const R=SRR;if(SLB||!R)return;SLB=1;
- try{if(R.sn+10>R.songs.length&&!R.done)await fetchMoreSongs(R);
-  const ck=Date.now()-LST<1200?20:10;LST=Date.now();await ensureMore(R,R.sn+ck);const from=R.sn;R.sn=Math.min(R.songs.length,R.sn+ck);const tb=$('#stbl');
-  if(tb&&R.sn>from)tb.insertAdjacentHTML('beforeend',songRows(R.songs.slice(0,R.sn),'sr',from));
-  const t=$('#sms');if(t){if(R.sn<R.songs.length||(!R.done&&R.songs.length>=20)){if(SIO){SIO.unobserve(t);SIO.observe(t)}}else{t.remove();if(SIO){SIO.disconnect();SIO=null}}}
- }catch(e){}finally{SLB=0}}
 function drawS(){drawS0();try{armS()}catch(e){}try{ppSearch()}catch(e){}}
 function drawS0(){const R=SRR,e=$('#sr');if(!e)return;
  if(!R.songs.length&&!R.albums.length&&!R.artists.length){e.innerHTML=`<div class="msg">Nothing found.${why()}</div>`;return}
@@ -931,30 +904,14 @@ function searchV(q){
  q?runS(q):emptyS();
  if(!q&&!matchMedia('(max-width:800px)').matches)si.focus()}
 
-/* Show more buttons (search + New Releases) and the two Share options */
+/* the two Share options */
 document.addEventListener('click',async e=>{
- const m=e.target.closest('[data-sm]');
- if(m){const R=SRR;if(!R)return;const all=m.dataset.sm==='all';R.auto=1;if(all)STAB='songs';
-  await ensureMore(R,R.sn+10);
-  R.sn=Math.min(R.songs.length,R.sn+10);drawS();if(all){const c=$('#col');if(c)c.scrollTop=0;main.scrollTop=0}return}
  const b=e.target.closest('[data-shr]');
  if(b){const web=b.dataset.shr==='web',u=web?'https://signify-pearl.vercel.app':'https://github.com/priyanshuraj834072-eng/singify-app/releases/latest/download/singify.apk';
   try{closeSheet()}catch(x){}
   try{if(navigator.share){await navigator.share({title:'Singify',text:web?'Singify - free music player':'Singify app - free music player',url:u});return}}catch(x){if(x&&x.name==='AbortError')return}
   try{await navigator.clipboard.writeText(u);toast('Link copied')}catch(x){dlg('Share Singify',u,{ok:'OK'})}}
 },true);
-/* New Releases page: 20 songs first, more load by themselves while scrolling */
-let NRV={n:0,busy:0},NVIO=null;
-async function nrvGrow(k){if(NRV.busy)return;NRV.busy=1;try{
- if(!NR.l.length){try{await nrFirst()}catch(e){}}
- while(NRV.n+k>NR.l.length&&!NR.done){if(!await nrMore())break}
- if(!$('#nrl'))return;
- const from=NRV.n;NRV.n=Math.min(NR.l.length,NRV.n+k);const e=$('#nrl');
- if(NRV.n>from){lists.nrv=NR.l.slice(0,NRV.n);if(!from)e.innerHTML='';e.insertAdjacentHTML('beforeend',songRows(lists.nrv,'nrv',from))}
- const x=$('#nrp');if(x){const rest=NRV.n<NR.l.length||!NR.done;x.innerHTML=rest?'<div class="sms"></div>':(NRV.n?'':'<div class="msg">Could not load songs.</div>');if(NVIO){NVIO.disconnect();NVIO=null}
-  if(rest){const t=x.firstChild;NVIO=new IntersectionObserver(es=>{if(es.some(z=>z.isIntersecting)){const ck=Date.now()-(window.NVS||0)<1200?20:10;window.NVS=Date.now();nrvGrow(ck)}},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});NVIO.observe(t)}}
- }catch(e){}finally{NRV.busy=0}}
-function newRelV(){NRV.n=0;main.innerHTML=`<div class="pg"><h1 style="margin-bottom:12px">New Releases</h1><div class="tbl" id="nrl">${skel(8)}</div><div id="nrp"></div></div>`;nrvGrow(20)}
 function listV(title,q,fn,ph){
  main.innerHTML=`<div class="pg"><div class="head"><div class="cv" id="cv" style="${bg('#5a3a10')}"></div><div><h1>${esc(title)}</h1><p>Your music, without ads.</p><p id="lc">Loading...</p><div class="acts"><a class="go tp" id="lp" href="#" style="display:none">${ic('play')}Play</a></div></div></div>
  <div class="tbl"><div class="tbh"><span>#</span><span>TITLE</span><span>ALBUM</span><span>${ic('clock')}</span></div><div id="lr">${skel(8)}</div></div></div>`;

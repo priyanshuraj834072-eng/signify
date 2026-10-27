@@ -6,7 +6,7 @@ function norm(s){
  const dl=Array.isArray(s.downloadUrl)?s.downloadUrl.filter(d=>d&&d.url&&!/_12\.(mp4|m4a)$/i.test(d.url)):null; /* _12 = 12kbps stub/preview, never a full song */
  const u=dl?(dl[dl.length-1]||{}).url:(s.media_url||s.url);
  const al=s.album&&typeof s.album==='object'?s.album.name:s.album;
- const o={id:String(s.id),title:dec(s.name||s.song||s.title),artist:dec(s.artists&&s.artists.primary?s.artists.primary.map(a=>a.name).join(', '):(s.primary_artists||s.singers||'')),alb:dec(al),img:(im||'').replace(/150x150|50x50/,'500x500'),url:u,dur:+s.duration||0,pc:+s.playCount||0,lang:String(s.language||'').toLowerCase(),ar:(s.artists&&s.artists.primary||[]).slice(0,2).map(a=>({id:String(a.id),n:dec(a.name),img:pic(a)})),pa:(s.artists&&s.artists.primary||[]).map(a=>({id:String(a.id),n:dec(a.name),img:pic(a),r:String(a.role||'')}))};
+ const o={id:String(s.id),title:dec(s.name||s.song||s.title),artist:dec(s.artists&&s.artists.primary?s.artists.primary.map(a=>a.name).join(', '):(s.primary_artists||s.singers||'')),alb:dec(al),img:(im||'').replace(/150x150|50x50/,'500x500'),url:u,dur:+s.duration||0,pc:+s.playCount||0,rd:String(s.releaseDate||s.release_date||'').slice(0,10),yr:+s.year||0,lang:String(s.language||'').toLowerCase(),ar:(s.artists&&s.artists.primary||[]).slice(0,2).map(a=>({id:String(a.id),n:dec(a.name),img:pic(a)})),pa:(s.artists&&s.artists.primary||[]).map(a=>({id:String(a.id),n:dec(a.name),img:pic(a),r:String(a.role||'')}))};
  C[o.id]=o;return o}
 /* ---------- duplicates: the same song is uploaded in many compilations (different id + cover) ---------- */
 const VER=/remix|lo-?fi|slowed|reverb|sped|live|unplugged|acoustic|reprise|cover|version|mix|instrumental|mashup|karaoke|club|dj|edit|jhankar|cinematic|extended|female|male|duet|rap|unwind/i;
@@ -211,3 +211,58 @@ function trendListen(){
  if(!DB){if(TRW++<10)setTimeout(trendListen,1500);return}
  TRL=1;trendLoad();setInterval(trendLoad,600000)}
 async function trendList(){trendListen();for(let i=0;i<24&&!TRD.length;i++)await new Promise(r=>setTimeout(r,250));return TRD}
+/* =====================================================================
+   NEW RELEASES (home list of 8 + its own page) and "Show more" in search.
+   Kept here so index.html stays small. Uses globals of the main app at call time.
+   ===================================================================== */
+const NRK=4,NRAGE=210*864e5,NR={l:[],old:[],done:0,qi:NRK,busy:0};
+const NRQ=()=>{const y=new Date().getFullYear();return['new hindi songs '+y,'latest bollywood songs '+y,'new punjabi songs '+y,'new songs '+y,'new hindi love songs '+y,'new haryanvi songs '+y,'new english songs '+y,'hindi '+y,y+' songs','new release '+y,'bollywood new songs '+y,'new south hindi dubbed songs '+y]};
+/* release date of a song as a number; only the year known -> middle of that year; nothing known -> 0 */
+const nrDate=s=>{const d=Date.parse(s.rd||'');if(d)return d;const y=+s.yr||0;return y?Date.parse(y+'-07-01'):0};
+/* recent songs (newest first) go in; songs of unknown date follow; old songs wait in NR.old */
+function nrAdd(l){const have=new Set(NR.l.map(x=>x.id)),now=Date.now(),items=[];
+ (l||[]).forEach(x=>{if(x&&x.url&&x.img&&!have.has(x.id)&&!items.some(o=>o.id===x.id||sameSong(o,x))&&!NR.l.some(o=>sameSong(o,x)))items.push(x)});
+ const rec=[],unk=[];items.forEach(x=>{const d=nrDate(x);if(!d)unk.push(x);else if(now-d<=NRAGE)rec.push(x);else NR.old.push(x)});
+ rec.sort((a,b)=>nrDate(b)-nrDate(a));NR.l=NR.l.concat(rec,unk);return rec.length+unk.length}
+async function nrMore(){const q=NRQ();let n=0;while(!n&&NR.qi<q.length){try{n=nrAdd(await search(q[NR.qi++]))}catch(e){}}if(!n)NR.done=1;return n}
+async function nrFirst(){const q=NRQ();NR.l=[];NR.old=[];NR.qi=NRK;NR.done=0;
+ try{const r=await Promise.all([plSongs('New Releases',/new releases|latest releases|fresh hits/i)].concat(q.slice(0,NRK).map(x=>search(x))));nrAdd(dedupe([].concat(...r)))}catch(e){}
+ if(NR.l.length<16){NR.old.sort((a,b)=>nrDate(b)-nrDate(a));NR.l=NR.l.concat(NR.old.splice(0,16-NR.l.length))} /* too few new ones: fill up with the newest of the older */
+ return NR.l.slice()}
+function nrPaint(){const e=$('#trend');if(!e||!NR.l.length)return;lists.trend=NR.l.slice(0,8);e.innerHTML=songRows(lists.trend,'trend')}
+/* home: the 8 songs (from cache or fresh) */
+function nrHome(d,e){
+ if(Array.isArray(d.nr)&&d.nr.length&&!NR.l.length){NR.l=d.nr.slice();NR.qi=NRK}
+ if(NR.l.length)nrPaint();
+ else e.innerHTML=Array.isArray(d.nr)||!(d.trend||[]).length?`<div class="msg" style="grid-column:1/-1">Could not load songs.${why()}<br><button class="btn tp" id="hretry" style="margin-top:12px">Try again</button></div>`:skel(6)}
+/* nearest scrolling parent of an element (for the "load more" watcher) */
+const scAnc=el=>{let p=el&&el.parentElement;while(p&&p!==document.body&&p!==document.documentElement){if(/(auto|scroll)/.test(getComputedStyle(p).overflowY))return p;p=p.parentElement}return null};
+/* New Releases page: 20 songs first, more load by themselves while scrolling (faster scrolling -> bigger steps) */
+let NRV={n:0,busy:0},NVIO=null;
+async function nrvGrow(k){if(NRV.busy)return;NRV.busy=1;try{
+ if(!NR.l.length){try{await nrFirst()}catch(e){}}
+ while(NRV.n+k>NR.l.length&&!NR.done){if(!await nrMore())break}
+ if(!$('#nrl'))return;
+ const from=NRV.n;NRV.n=Math.min(NR.l.length,NRV.n+k);const e=$('#nrl');
+ if(NRV.n>from){lists.nrv=NR.l.slice(0,NRV.n);if(!from)e.innerHTML='';e.insertAdjacentHTML('beforeend',songRows(lists.nrv,'nrv',from))}
+ const x=$('#nrp');if(x){const rest=NRV.n<NR.l.length||!NR.done;x.innerHTML=rest?'<div class="sms"></div>':(NRV.n?'':'<div class="msg">Could not load songs.</div>');if(NVIO){NVIO.disconnect();NVIO=null}
+  if(rest){const t=x.firstChild;NVIO=new IntersectionObserver(es=>{if(es.some(z=>z.isIntersecting)){const ck=Date.now()-(window.NVS||0)<1200?20:10;window.NVS=Date.now();nrvGrow(ck)}},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});NVIO.observe(t)}}
+ }catch(e){}finally{NRV.busy=0}}
+function newRelV(){NRV.n=0;main.innerHTML=`<div class="pg"><h1 style="margin-bottom:12px">New Releases</h1><div class="tbl" id="nrl">${skel(8)}</div><div id="nrp"></div></div>`;nrvGrow(20)}
+
+/* ---------- search: "Show more" button, then results load by themselves while scrolling ---------- */
+const moreS=R=>(R.sn<R.songs.length||(!R.done&&R.songs.length>=20))?(R.auto?'<div class="sms" id="sms"></div>':'<div class="smw"><button class="btn tp" data-sm="1">Show more</button></div>'):'';
+let SIO=null,SLB=0,LST=0;
+function armS(){if(SIO){SIO.disconnect();SIO=null}const t=$('#sms');if(!t||STAB!=='songs')return;
+ SIO=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting))loadMoreS()},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});SIO.observe(t)}
+async function loadMoreS(){const R=SRR;if(SLB||!R)return;SLB=1;
+ try{const ck=Date.now()-LST<1200?20:10;LST=Date.now();await ensureMore(R,R.sn+ck);
+  const from=R.sn;R.sn=Math.min(R.songs.length,R.sn+ck);const tb=$('#stbl');
+  if(tb&&R.sn>from)tb.insertAdjacentHTML('beforeend',songRows(R.songs.slice(0,R.sn),'sr',from));
+  const t=$('#sms');if(t){if(R.sn<R.songs.length||(!R.done&&R.songs.length>=20)){if(SIO){SIO.unobserve(t);SIO.observe(t)}}else{t.remove();if(SIO){SIO.disconnect();SIO=null}}}
+ }catch(e){}finally{SLB=0}}
+document.addEventListener('click',async e=>{
+ const m=e.target.closest('[data-sm]');if(!m)return;const R=SRR;if(!R)return;
+ const all=m.dataset.sm==='all';R.auto=1;if(all)STAB='songs';
+ await ensureMore(R,R.sn+10);
+ R.sn=Math.min(R.songs.length,R.sn+10);drawS();if(all){const c=$('#col');if(c)c.scrollTop=0;main.scrollTop=0}},true);
