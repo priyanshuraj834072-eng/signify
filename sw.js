@@ -1,7 +1,7 @@
 // Singify service worker. DO NOT EDIT AGAIN: updates are controlled by version.json.
 // App shell (index.html, songs.js, native.js, manifest) is served from cache and is only
 // refreshed when the user taps "Update" in the app. Everything else is network-first.
-const V = 'singify-v7';
+const V = 'singify-v8';
 const SHELL = ['/', '/index.html', '/songs.js', '/native.js', '/manifest.json'];
 const MORE = ['/icons/icon-192.png?v=3', '/icons/icon-512.png?v=3', '/icons/icon-maskable-512.png?v=3', '/icons/apple-touch-icon.png?v=3', '/icons/favicon.png?v=3'];
 self.addEventListener('install', e => {
