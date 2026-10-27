@@ -50,7 +50,7 @@ async function entNet(type,id,name){
 const nzq=t=>String(t||'').toLowerCase().replace(/[^a-z0-9\u0900-\u097f]+/g,' ').trim();
 /* rough "sounds like" key: podin and pudina, pyar and pyaar end up close to each other */
 function pkey(t){return nzq(t).replace(/ph/g,'f').replace(/w/g,'v').replace(/z/g,'j').replace(/y/g,'i').replace(/h/g,'').replace(/o/g,'u').replace(/e/g,'i').replace(/(.)\1+/g,'$1')}
-function rankSongs(list,q){const n=nzq(q);if(!n||!list||list.length<2)return list||[];const pk=pkey(q),
+function rankSongs(list,q){const n=nzq(q);if(!list||list.length<2||!n)return list||[];const pk=pkey(q),
  cl=t=>nzq(String(t||'').replace(/[\(\[][^\)\]]*[\)\]]/g,' ').replace(/\s[-\u2013]\s*(from|title track|original|film version|motion picture).*$/i,'')),
  tier=s=>{const t=cl(s.title),pt=pkey(t),ar=nzq(s.artist),al=nzq(s.alb);
   if(t===n)return 0;                       /* the song is called exactly this */
@@ -61,7 +61,13 @@ function rankSongs(list,q){const n=nzq(q);if(!n||!list||list.length<2)return lis
   if(ar.includes(n)||al.includes(n))return 5;
   return 6},
  pop=s=>((typeof PC!=='undefined'&&PC&&PC[s.id])||0)*1e7+(+s.pc||0);
- return list.map((s,i)=>({s,t:tier(s),p:pop(s),i})).sort((a,b)=>a.t-b.t||b.p-a.p||a.i-b.i).map(x=>x.s)}
+ const rows=list.map((s,i)=>{const t=tier(s),p=pop(s);
+  /* a very popular song that is only spelled differently (Pudina for podin) goes right after the exact matches */
+  return{s,t:(t===3.5||t===4)&&p>=1e5?0.5:t,p,i,k:cl(s.title)}}).sort((a,b)=>a.t-b.t||b.p-a.p||a.i-b.i);
+ /* the same title many times (different artists): 3 stay up, the rest follow after the close matches, nothing is removed */
+ const cnt={},keep=[],over=[];rows.forEach(r=>{if(r.t<=4){cnt[r.k]=(cnt[r.k]||0)+1;(cnt[r.k]>3?over:keep).push(r)}else keep.push(r)});
+ const near=keep.filter(r=>r.t<=4),far=keep.filter(r=>r.t>4);
+ return near.concat(over,far).map(r=>r.s)}
 function qVariants(q){const s=nzq(q),o=[],add=v=>{if(v&&v!==s&&!o.includes(v))o.push(v)};
  add(s.replace(/o/g,'u'));add(s.replace(/u/g,'o'));add(s.replace(/e/g,'i'));add(s.replace(/i/g,'e'));add(s.replace(/(.)\1+/g,'$1'));add(s.replace(/w/g,'v'));return o.slice(0,3)}
 /* few results that really match the typed word -> also look up the likely spellings (podin -> pudin -> Pudina) */
@@ -73,15 +79,23 @@ async function widenSongs(list,q){try{const pk=pkey(q);if(pk.replace(/ /g,'').le
  const seen=new Set(list.map(x=>x.id)),out=list.slice();
  res.forEach(l=>l.map(norm).forEach(x=>{if(x.url&&!seen.has(x.id)){seen.add(x.id);out.push(x)}}));
  return dedupe(out)}catch(e){return list}}
-/* next page of results for "Show more" / scrolling */
+/* more results for "Show more" / scrolling: next pages first, then a few related searches; done = really nothing left */
 async function fetchMoreSongs(R){if(!R||R.done)return;
- const rs=j=>{const r=(j.data&&j.data.results)||j.data||j.results||j;return Array.isArray(r)?r:[]};
- for(let k=0;k<3;k++){R.pg=(R.pg||0)+1;
-  try{const r=rs(await api('/api/search/songs',{query:R.q,limit:30,page:R.pg})),have=new Set(R.songs.map(x=>x.id));
-   const fresh=rankSongs(dedupe(r.map(norm)).filter(x=>!have.has(x.id)&&!R.songs.some(o=>sameSong(o,x))),R.q);
-   if(!r.length||R.pg>=15)R.done=1;
-   if(fresh.length){R.songs=R.songs.concat(fresh);return}
-   if(R.done)return}catch(e){R.done=1;return}}}
+ const rs=j=>{const r=(j.data&&j.data.results)||j.data||j.results||j;return Array.isArray(r)?r:[]},
+  take=l=>{const have=new Set(R.songs.map(x=>x.id));return rankSongs(dedupe(l.map(norm)).filter(x=>!have.has(x.id)&&!R.songs.some(o=>sameSong(o,x))),R.q)};
+ try{
+  if(!R.pgEnd){
+   for(let k=0;k<3&&!R.pgEnd;k++){R.pg=(R.pg||0)+1;const r=rs(await api('/api/search/songs',{query:R.q,limit:30,page:R.pg}));
+    if(!r.length||R.pg>=15)R.pgEnd=1;
+    const f=take(r);if(f.length){R.songs=R.songs.concat(f);R.dry=0;return}}
+   if((R.dry=(R.dry||0)+1)>=2)R.pgEnd=1}
+  if(R.pgEnd&&!R.rel){R.rel=1;
+   const qs=[R.q+' song',R.q+' hindi song'].concat(qVariants(R.q)).slice(0,4),
+    res=await Promise.all(qs.map(v=>api('/api/search/songs',{query:v,limit:30}).then(rs).catch(()=>[]))),f=take([].concat(...res));
+   if(f.length){R.songs=R.songs.concat(f);return}}
+  if(R.pgEnd&&R.rel)R.done=1
+ }catch(e){R.done=1}}
+async function ensureMore(R,need){for(let i=0;i<6&&R.songs.length<need&&!R.done;i++)await fetchMoreSongs(R)}
 
 /* CDN links expire: fetch a fresh stream link for a song by its id */
 async function resolveTrackUrls(s){try{const j=await api('/api/songs',{ids:s.id}),raw=Array.isArray(j.data)?j.data[0]:((j.data&&j.data.results&&j.data.results[0])||j.data),f=raw&&raw.id?norm(raw):null;return f&&f.url?f:null}catch(e){return null}}

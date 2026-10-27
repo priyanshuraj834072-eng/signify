@@ -766,7 +766,7 @@ function home(){
  <h2 data-s="m">Recently played <a href="#/all/recent">Show all</a></h2><div class="scroll" data-s="m" id="rp">${hist.length?cards(hist.slice(0,12),'hist'):''}</div>
  <h2 data-s="m" id="pph" style="display:none">Playlists for you</h2><div class="scroll" data-s="m" id="ppx" style="display:none"></div>
  <h2 data-s="y">Made for you</h2><div class="scroll" data-s="y">${mixes().map((m,i)=>`<a class="mix tp rv" ${dl(i)} data-q="${esc(m[2])}" style="${bg(m[3])}" href="${href(m[0],m[2])}"><div class="mt"><b>${m[0]}</b><small>${m[1]}</small></div><span class="gp">${ic('play')}</span></a>`).join('')}</div>
- <h2 data-s="m">New Releases <a href="#" id="nrm">Show more</a></h2><div class="two" data-s="m" id="trend">${skel(6)}</div><div id="nrx" data-s="m"></div><div id="shelves"></div>
+ <h2 data-s="m">New Releases <a href="#/newreleases" id="nrm">Show more</a></h2><div class="two" data-s="m" id="trend">${skel(6)}</div><div id="nrx" data-s="m"></div><div id="shelves"></div>
  <h2 data-s="m">Browse</h2><div class="scroll" data-s="m">${GENRES.map((m,i)=>`<a class="genre tp rv" ${dl(i)} data-q="${esc(m[1])}" style="${bg(m[2])}" href="${href(m[0],m[1])}"><span>${m[0]}</span></a>`).join('')}</div>
  <h2 data-s="m">Trending artists <a href="#/artists">Show all</a></h2><div class="scroll" data-s="m" id="tart">${artRowHome()}</div></div>`;
  instUI();goTos();homeLoad();try{ppHome()}catch(e){}}
@@ -817,8 +817,7 @@ const scAnc=el=>{let p=el&&el.parentElement;while(p&&p!==document.body&&p!==docu
 let NIO=null;
 function nrArm(){if(NIO){NIO.disconnect();NIO=null}const t=document.querySelector('#nrx .sms');if(!t)return;
  NIO=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){const ck=Date.now()-(window.NLS||0)<1200?20:10;window.NLS=Date.now();nrGrow(ck)}},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});NIO.observe(t)}
-function nrUI(){const a=$('#nrm'),x=$('#nrx');if(a)a.style.display=NR.auto?'none':(NR.n<NR.l.length||!NR.done?'':'none');
- if(x){const rest=NR.n<NR.l.length||!NR.done;x.innerHTML=NR.auto&&rest?'<div class="sms"></div>':'';if(NR.auto&&rest)nrArm()}}
+function nrUI(){}
 function nrPaint(){const e=$('#trend');if(!e||!NR.l.length)return;lists.trend=NR.l.slice(0,NR.n);e.innerHTML=songRows(lists.trend,'trend');nrUI()}
 async function nrGrow(k){if(NR.busy)return;NR.busy=1;try{while(NR.n+k>NR.l.length&&!NR.done){if(!await nrMore())break}
  const from=NR.n;NR.n=Math.min(NR.l.length,NR.n+k);const e=$('#trend');if(e&&NR.n>from){lists.trend=NR.l.slice(0,NR.n);e.insertAdjacentHTML('beforeend',songRows(lists.trend,'trend',from))}
@@ -874,15 +873,15 @@ function entSongs(type,id,name){const k=type+'|'+(id||name),m=ecm(),c=m[k];
  const net=()=>entNet(type,id,name).then(r=>{if(r.length){m[k]={t:Date.now(),l:r.slice(0,150).map(slimS)};lru(m,'',5);sv(ECK,m)}return r});
  if(c&&c.l&&c.l.length){c.l.forEach(s=>C[s.id]=s);if(Date.now()-c.t>ECTTL)setTimeout(net,3000);return Promise.resolve(c.l)}
  return net()}
-const moreS=R=>(R.sn<R.songs.length||!R.done)?(R.auto?'<div class="sms" id="sms"></div>':'<div class="smw"><button class="btn tp" data-sm="1">Show more</button></div>'):'';
+const moreS=R=>(R.sn<R.songs.length||(!R.done&&R.songs.length>=20))?(R.auto?'<div class="sms" id="sms"></div>':'<div class="smw"><button class="btn tp" data-sm="1">Show more</button></div>'):'';
 let SIO=null,SLB=0,LST=0;
 function armS(){if(SIO){SIO.disconnect();SIO=null}const t=$('#sms');if(!t||STAB!=='songs')return;
  SIO=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting))loadMoreS()},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});SIO.observe(t)}
 async function loadMoreS(){const R=SRR;if(SLB||!R)return;SLB=1;
  try{if(R.sn+10>R.songs.length&&!R.done)await fetchMoreSongs(R);
-  const ck=Date.now()-LST<1200?20:10;LST=Date.now();if(R.sn+ck>R.songs.length&&!R.done)await fetchMoreSongs(R);const from=R.sn;R.sn=Math.min(R.songs.length,R.sn+ck);const tb=$('#stbl');
+  const ck=Date.now()-LST<1200?20:10;LST=Date.now();await ensureMore(R,R.sn+ck);const from=R.sn;R.sn=Math.min(R.songs.length,R.sn+ck);const tb=$('#stbl');
   if(tb&&R.sn>from)tb.insertAdjacentHTML('beforeend',songRows(R.songs.slice(0,R.sn),'sr',from));
-  const t=$('#sms');if(t){if(R.sn<R.songs.length||!R.done){if(SIO){SIO.unobserve(t);SIO.observe(t)}}else{t.remove();if(SIO){SIO.disconnect();SIO=null}}}
+  const t=$('#sms');if(t){if(R.sn<R.songs.length||(!R.done&&R.songs.length>=20)){if(SIO){SIO.unobserve(t);SIO.observe(t)}}else{t.remove();if(SIO){SIO.disconnect();SIO=null}}}
  }catch(e){}finally{SLB=0}}
 function drawS(){drawS0();try{armS()}catch(e){}try{ppSearch()}catch(e){}}
 function drawS0(){const R=SRR,e=$('#sr');if(!e)return;
@@ -894,7 +893,7 @@ function drawS0(){const R=SRR,e=$('#sr');if(!e)return;
  else if(STAB==='albums')b=wrap(albRow(R.albums),'c2');
  else if(STAB==='artists')b=wrap(artRow(R.artists));
  else if(STAB==='playlists')b=wrap(albRow(R.playlists),'c2');
- else b=`${R.songs.length?`<h2 style="margin-top:6px">Songs</h2><div class="tbl">${songRows(R.songs.slice(0,10),'sr')}</div>${R.songs.length>10||!R.done?'<div class="smw"><button class="btn tp" data-sm="all">Show more</button></div>':''}`:''}${R.artists.some(x=>x.m)?`<h2>Artists</h2><div class="scroll">${artRow(R.artists.filter(x=>x.m).slice(0,10))}</div>`:''}${R.albums.length?`<h2>Albums</h2><div class="scroll">${albRow(R.albums.slice(0,10))}</div>`:''}${R.playlists.length?`<h2>Playlists</h2><div class="scroll">${albRow(R.playlists.slice(0,10))}</div>`:''}`;
+ else b=`${R.songs.length?`<h2 style="margin-top:6px">Songs</h2><div class="tbl">${songRows(R.songs.slice(0,10),'sr')}</div>${R.songs.length>10?'<div class="smw"><button class="btn tp" data-sm="all">Show more</button></div>':''}`:''}${R.artists.some(x=>x.m)?`<h2>Artists</h2><div class="scroll">${artRow(R.artists.filter(x=>x.m).slice(0,10))}</div>`:''}${R.albums.length?`<h2>Albums</h2><div class="scroll">${albRow(R.albums.slice(0,10))}</div>`:''}${R.playlists.length?`<h2>Playlists</h2><div class="scroll">${albRow(R.playlists.slice(0,10))}</div>`:''}`;
  e.innerHTML=`<div class="chips">${T.map(t=>`<span class="chip${STAB===t[0]?' on':''}" data-st="${t[0]}">${t[1]}${t[2]?' ('+t[2]+')':''}</span>`).join('')}</div>${b}`}
 function runS(q){const k=++STK;$('#sr').innerHTML=skel(6);{const c=$('#col');if(c)c.scrollTop=0;main.scrollTop=0}
  fullSearch(q).then(R=>{if(k!==STK||!$('#sr'))return;SRR=R;R.sn=10;R.auto=0;if(R.songs.length&&q.length>=3)saveRS(q);drawS()})}
@@ -936,16 +935,26 @@ function searchV(q){
 document.addEventListener('click',async e=>{
  const m=e.target.closest('[data-sm]');
  if(m){const R=SRR;if(!R)return;const all=m.dataset.sm==='all';R.auto=1;if(all)STAB='songs';
-  if(R.sn+10>R.songs.length&&!R.done)await fetchMoreSongs(R);
+  await ensureMore(R,R.sn+10);
   R.sn=Math.min(R.songs.length,R.sn+10);drawS();if(all){const c=$('#col');if(c)c.scrollTop=0;main.scrollTop=0}return}
- const n=e.target.closest('#nrm');
- if(n){e.preventDefault();NR.auto=1;nrUI();nrGrow(20);return}
  const b=e.target.closest('[data-shr]');
  if(b){const web=b.dataset.shr==='web',u=web?'https://signify-pearl.vercel.app':'https://github.com/priyanshuraj834072-eng/singify-app/releases/latest/download/singify.apk';
   try{closeSheet()}catch(x){}
   try{if(navigator.share){await navigator.share({title:'Singify',text:web?'Singify - free music player':'Singify app - free music player',url:u});return}}catch(x){if(x&&x.name==='AbortError')return}
   try{await navigator.clipboard.writeText(u);toast('Link copied')}catch(x){dlg('Share Singify',u,{ok:'OK'})}}
 },true);
+/* New Releases page: 20 songs first, more load by themselves while scrolling */
+let NRV={n:0,busy:0},NVIO=null;
+async function nrvGrow(k){if(NRV.busy)return;NRV.busy=1;try{
+ if(!NR.l.length){try{await nrFirst()}catch(e){}}
+ while(NRV.n+k>NR.l.length&&!NR.done){if(!await nrMore())break}
+ if(!$('#nrl'))return;
+ const from=NRV.n;NRV.n=Math.min(NR.l.length,NRV.n+k);const e=$('#nrl');
+ if(NRV.n>from){lists.nrv=NR.l.slice(0,NRV.n);if(!from)e.innerHTML='';e.insertAdjacentHTML('beforeend',songRows(lists.nrv,'nrv',from))}
+ const x=$('#nrp');if(x){const rest=NRV.n<NR.l.length||!NR.done;x.innerHTML=rest?'<div class="sms"></div>':(NRV.n?'':'<div class="msg">Could not load songs.</div>');if(NVIO){NVIO.disconnect();NVIO=null}
+  if(rest){const t=x.firstChild;NVIO=new IntersectionObserver(es=>{if(es.some(z=>z.isIntersecting)){const ck=Date.now()-(window.NVS||0)<1200?20:10;window.NVS=Date.now();nrvGrow(ck)}},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});NVIO.observe(t)}}
+ }catch(e){}finally{NRV.busy=0}}
+function newRelV(){NRV.n=0;main.innerHTML=`<div class="pg"><h1 style="margin-bottom:12px">New Releases</h1><div class="tbl" id="nrl">${skel(8)}</div><div id="nrp"></div></div>`;nrvGrow(20)}
 function listV(title,q,fn,ph){
  main.innerHTML=`<div class="pg"><div class="head"><div class="cv" id="cv" style="${bg('#5a3a10')}"></div><div><h1>${esc(title)}</h1><p>Your music, without ads.</p><p id="lc">Loading...</p><div class="acts"><a class="go tp" id="lp" href="#" style="display:none">${ic('play')}Play</a></div></div></div>
  <div class="tbl"><div class="tbh"><span>#</span><span>TITLE</span><span>ALBUM</span><span>${ic('clock')}</span></div><div id="lr">${skel(8)}</div></div></div>`;
@@ -1158,8 +1167,8 @@ function route(){
  if(h===shown)return;
  SPOS[shown]=main.scrollTop;shown=h;document.body.classList.toggle('srch',v==='search');if(v!=='search')document.body.classList.remove('ssm');
  $$('[data-nav]').forEach(x=>x.classList.toggle('on',x.dataset.nav===(v==='list'?'':v)||((v==='settings'||v==='themes'||v==='uitheme')&&x.dataset.nav==='stage')));
- VN={search:'Search',list:a,library:'Liked Songs',stage:'Me',settings:'Settings',artists:'Artists',ent:c,all:'Recently played',pl:(PLS.find(x=>x.id===a)||{}).name}[v]||'Singify';
- ({search:()=>searchV(a||''),list:()=>listV(a||'',b||a||''),library,stage:stageV,settings:settingsV,themes:themesV,uitheme:uithemeV,trending:()=>listV('Trending in Singify','trending',trendList),daily:()=>listV('Daily Mood','daily',dailyMood),artists:artistsV,ent:()=>listV(c||'',c||'',()=>entSongs(a,b,c),a==='artist'?()=>artPic(b,c):null),pl:()=>plV(a),pledit:()=>plEditV(a),pp:()=>ppV(a),all:allV,home}[v]||home)();
+ VN={search:'Search',list:a,library:'Liked Songs',stage:'Me',settings:'Settings',artists:'Artists',ent:c,all:'Recently played',pl:(PLS.find(x=>x.id===a)||{}).name,newreleases:'New Releases'}[v]||'Singify';
+ ({search:()=>searchV(a||''),list:()=>listV(a||'',b||a||''),library,stage:stageV,settings:settingsV,themes:themesV,uitheme:uithemeV,trending:()=>listV('Trending in Singify','trending',trendList),daily:()=>listV('Daily Mood','daily',dailyMood),artists:artistsV,ent:()=>listV(c||'',c||'',()=>entSongs(a,b,c),a==='artist'?()=>artPic(b,c):null),pl:()=>plV(a),pledit:()=>plEditV(a),pp:()=>ppV(a),newreleases:newRelV,all:allV,home}[v]||home)();
  covers();main.scrollTop=0;{const c=$('#col');if(c)c.scrollTop=0}setTimeout(()=>{if(SPOS[h])main.scrollTop=SPOS[h]},60)}
 addEventListener('hashchange',route);
 /* ---------- player ---------- */
