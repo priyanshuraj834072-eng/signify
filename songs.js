@@ -45,6 +45,44 @@ async function entNet(type,id,name){
  }catch(e){}
  return search(name)}
 
+
+/* ---------- smarter search: ranking, spelling tolerance, more pages ---------- */
+const nzq=t=>String(t||'').toLowerCase().replace(/[^a-z0-9\u0900-\u097f]+/g,' ').trim();
+/* rough "sounds like" key: podin and pudina, pyar and pyaar end up close to each other */
+function pkey(t){return nzq(t).replace(/ph/g,'f').replace(/w/g,'v').replace(/z/g,'j').replace(/y/g,'i').replace(/h/g,'').replace(/o/g,'u').replace(/e/g,'i').replace(/(.)\1+/g,'$1')}
+function rankSongs(list,q){const n=nzq(q);if(!n||!list||list.length<2)return list||[];const pk=pkey(q),
+ cl=t=>nzq(String(t||'').replace(/[\(\[][^\)\]]*[\)\]]/g,' ').replace(/\s[-\u2013]\s*(from|title track|original|film version|motion picture).*$/i,'')),
+ tier=s=>{const t=cl(s.title),pt=pkey(t),ar=nzq(s.artist),al=nzq(s.alb);
+  if(t===n)return 0;                       /* the song is called exactly this */
+  if(t.startsWith(n))return 1;             /* the title starts with it */
+  if((' '+t).includes(' '+n))return 2;     /* a word of the title starts with it */
+  if(t.includes(n))return 3;
+  if(pk&&pt.includes(pk))return pt.startsWith(pk)?3.5:4; /* spelled a bit differently */
+  if(ar.includes(n)||al.includes(n))return 5;
+  return 6},
+ pop=s=>((typeof PC!=='undefined'&&PC&&PC[s.id])||0)*1e7+(+s.pc||0);
+ return list.map((s,i)=>({s,t:tier(s),p:pop(s),i})).sort((a,b)=>a.t-b.t||b.p-a.p||a.i-b.i).map(x=>x.s)}
+function qVariants(q){const s=nzq(q),o=[],add=v=>{if(v&&v!==s&&!o.includes(v))o.push(v)};
+ add(s.replace(/o/g,'u'));add(s.replace(/u/g,'o'));add(s.replace(/e/g,'i'));add(s.replace(/i/g,'e'));add(s.replace(/(.)\1+/g,'$1'));add(s.replace(/w/g,'v'));return o.slice(0,3)}
+/* few results that really match the typed word -> also look up the likely spellings (podin -> pudin -> Pudina) */
+async function widenSongs(list,q){try{const pk=pkey(q);if(pk.replace(/ /g,'').length<3)return list;
+ if(list.filter(s=>pkey(s.title).includes(pk)).length>=8)return list;
+ const vs=qVariants(q);if(!vs.length)return list;
+ const rs=j=>{const r=(j.data&&j.data.results)||j.data||j.results||j;return Array.isArray(r)?r:[]};
+ const res=await Promise.all(vs.map(v=>api('/api/search/songs',{query:v,limit:30}).then(rs).catch(()=>[])));
+ const seen=new Set(list.map(x=>x.id)),out=list.slice();
+ res.forEach(l=>l.map(norm).forEach(x=>{if(x.url&&!seen.has(x.id)){seen.add(x.id);out.push(x)}}));
+ return dedupe(out)}catch(e){return list}}
+/* next page of results for "Show more" / scrolling */
+async function fetchMoreSongs(R){if(!R||R.done)return;
+ const rs=j=>{const r=(j.data&&j.data.results)||j.data||j.results||j;return Array.isArray(r)?r:[]};
+ for(let k=0;k<3;k++){R.pg=(R.pg||0)+1;
+  try{const r=rs(await api('/api/search/songs',{query:R.q,limit:30,page:R.pg})),have=new Set(R.songs.map(x=>x.id));
+   const fresh=rankSongs(dedupe(r.map(norm)).filter(x=>!have.has(x.id)&&!R.songs.some(o=>sameSong(o,x))),R.q);
+   if(!r.length||R.pg>=15)R.done=1;
+   if(fresh.length){R.songs=R.songs.concat(fresh);return}
+   if(R.done)return}catch(e){R.done=1;return}}}
+
 /* CDN links expire: fetch a fresh stream link for a song by its id */
 async function resolveTrackUrls(s){try{const j=await api('/api/songs',{ids:s.id}),raw=Array.isArray(j.data)?j.data[0]:((j.data&&j.data.results&&j.data.results[0])||j.data),f=raw&&raw.id?norm(raw):null;return f&&f.url?f:null}catch(e){return null}}
 /* songs similar to a given song (used when the queue runs out) */
@@ -54,7 +92,7 @@ async function suggestNet(s){try{const j=await api('/api/songs/'+encodeURICompon
    SMART MUSIC SYSTEM: similar-songs queue, Daily Mood, weekly trending.
    Everything below uses globals of the main app at call time (Q, qi, A, hist, liked, ST, FU, DB ...).
    ===================================================================== */
-let SES=new Set(),SMQ=null,SMB=0;
+let SES=new Set(),SMQ=null,SMB=0,CNT={id:'',acc:0,done:0};
 
 /* ---------- similar-songs queue ---------- */
 /* Tap a song from search / home / trending / recently played -> similar songs follow.
@@ -97,7 +135,7 @@ async function dailyMood(){
  const k=dKey(),c=ls('sg_dm',null);
  if(c&&c.d===k&&c.l&&c.l.length>=20){c.l.forEach(s=>C[s.id]=s);return c.l}
  const prev=new Set((c&&c.ids)||[]),heard=new Set((hist||[]).slice(0,60).map(x=>x.id));
- const seeds=[];(hist||[]).slice(0,12).forEach(s=>seeds.push(s));seedShuffle(liked||[],k).slice(0,4).forEach(s=>seeds.push(s));
+ const hp=(hist||[]).filter(x=>(PC[x.id]||0)>0),hs=hp.length>=3?hp:(hist||[]);const seeds=[];hs.slice(0,12).forEach(s=>seeds.push(s));seedShuffle(liked||[],k).slice(0,4).forEach(s=>seeds.push(s));
  const uniq=[];seeds.forEach(s=>{if(s&&s.id&&!uniq.some(u=>u.id===s.id))uniq.push(s)});
  let pool=[];
  const res=await Promise.all(seedShuffle(uniq,k).slice(0,7).map(s=>suggestNet(s)));
@@ -127,13 +165,18 @@ function flushMin(force){
 function trkTick(){
  if(!TRK.b){TRK.b=1;try{A.addEventListener('pause',()=>flushMin(true));document.addEventListener('visibilitychange',()=>{if(document.hidden)flushMin(true)})}catch(e){}}
  const s=Q[qi];if(!s||A.paused)return;
- if(TRK.id!==s.id){flushMin(true);TRK.id=s.id;TRK.s=s;TRK.acc=0;TRK.last=A.currentTime;SES.add(s.id);return}
+ if(TRK.id!==s.id){flushMin(true);TRK.id=s.id;TRK.s=s;TRK.acc=0;TRK.last=A.currentTime;SES.add(s.id);CNT={id:s.id,acc:0,done:0};return}
  const c=A.currentTime,d=c-TRK.last;
  if(d>0&&d<2)TRK.acc+=d; /* only real listening time counts */
+ /* a play counts only after half of the song was really played (seeking forward adds nothing) */
+ if(CNT.id===s.id){if(CNT.done&&c<TRK.last-5){CNT.done=0;CNT.acc=0}
+  if(d>0&&d<2)CNT.acc+=d;
+  const du=(isFinite(A.duration)&&A.duration)||+s.dur||180;
+  if(!CNT.done&&CNT.acc>=du*0.5){CNT.done=1;try{countPlay(s)}catch(e){}}}
  TRK.last=c;if(!FU)TRK.acc=0;
  flushMin(false);
  if(SMQ===Q&&!SMB&&Q.length-qi<=3){SMB=1;smartFill(Q[Q.length-1],true).finally(()=>{SMB=0})} /* refill before the queue ends */}
-function trendMerge(T){return TRD.concat((T||[]).filter(x=>!TRD.some(y=>y.id===x.id))).slice(0,6)}
+function trendMerge(T){return TRD.concat((T||[]).filter(x=>!TRD.some(y=>y.id===x.id))).slice(0,10)}
 function trendUI(){
  const l=$('#tl');if(l)l.style.display=TRD.length?'':'none';
  const sig=TRD.map(x=>x.id+':'+x.tn).join();

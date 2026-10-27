@@ -508,6 +508,15 @@ html.noanim *,html.noanim *::before,html.noanim *::after{animation:none!importan
 .hr{display:flex;align-items:center;gap:8px}
 .ibtn{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--fg,inherit);padding:8px 14px;border-radius:99px;font-weight:700;font-size:13px;white-space:nowrap}
 .ibtn svg{width:16px;height:16px}
+
+/* artist / sub lines: always one line with ... */
+.card small,.tile small,.pl small,.dm small,.mixr small,#now .meta small,.hs p{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.song .a{display:block}
+/* banner badge: pill with a blinking dot in the accent colour */
+.badge{display:inline-flex;align-items:center;gap:8px}
+.badge::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:blkd 1.3s ease-in-out infinite}
+@keyframes blkd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.2;transform:scale(.65)}}
+.smw{display:flex;justify-content:center;padding:16px 0 4px}.sms{height:2px}
 </style>
 </head>
 <body class="paused">
@@ -560,7 +569,7 @@ html.noanim *,html.noanim *::before,html.noanim *::after{animation:none!importan
 <div class="lyr" id="lyr"></div>
 </section>
 <div id="toast"></div>
-<script src="/songs.js?v=3"></script><script src="/playlists.js?v=1"></script>
+<script src="/songs.js?v=4"></script><script src="/playlists.js?v=1"></script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),main=$('#main');
 const IC={gear:'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z',check:'M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z',play:'M8 5v14l11-7z',pause:'M6 5h4v14H6zM14 5h4v14h-4z',next:'M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z',prev:'M6 6h2v12H6zM9.5 12l8.5 6V6z',heart:'M12 21l-1.4-1.3C5.4 15.1 2 12 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.5-3.4 6.6-8.6 11.2L12 21z',heartO:'M16.5 3c-1.7 0-3.4.8-4.5 2.1C10.9 3.8 9.2 3 7.5 3 4.4 3 2 5.4 2 8.5c0 3.5 3.4 6.6 8.6 11.2l1.4 1.3 1.4-1.3C18.6 15.1 22 12 22 8.5 22 5.4 19.6 3 16.5 3zm-4.4 15.6l-.1.1-.1-.1C7.1 14.2 4 11.4 4 8.5 4 6.5 5.5 5 7.5 5c1.5 0 3 1 3.6 2.4h1.8C13.5 6 15 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.9-3.1 5.7-7.9 10.1z',shuf:'M10.6 9.2L4 2.6 2.6 4l6.6 6.6 1.4-1.4zM14.5 4l2.5 2.5L2.6 20.9 4 22.3 18.4 7.9 21 10.5V4h-6.5zM14.8 13.4l-1.4 1.4 3.6 3.6L14.5 21H21v-6.5l-2.5 2.5-3.7-3.6z',rep:'M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z',home:'M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z',search:'M15.5 14h-.8l-.3-.3A6.5 6.5 0 1 0 14 15.5l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z',lib:'M4 4h2v16H4zM8 4h2v16H8zM12.5 5.5l1.9-.5 4 15-1.9.5z',down:'M7 10l5 5 5-5z',dots:'M12 8a2 2 0 100-4 2 2 0 000 4zm0 2a2 2 0 100 4 2 2 0 000-4zm0 6a2 2 0 100 4 2 2 0 000-4z',bell:'M12 22a2 2 0 002-2h-4a2 2 0 002 2zm6-6V11c0-3.1-1.6-5.6-4.5-6.3V4a1.5 1.5 0 00-3 0v.7C7.7 5.4 6 7.9 6 11v5l-2 2v1h16v-1l-2-2z',clock:'M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z',crown:'M5 16L3 6l5.5 4L12 4l3.5 6L21 6l-2 10H5zm0 2h14v2H5z',mic:'M12 14a3 3 0 003-3V5a3 3 0 00-6 0v6a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 006 6.9V21h2v-3.1A7 7 0 0019 11h-2z',cal:'M7 2v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2V2h-2v2H9V2H7zm12 8v10H5V10h14z'};
@@ -685,7 +694,8 @@ const LY={};let lyr=[],lyi=-1;
 const log=t=>{ACT=[{t,at:Date.now()},...ACT].slice(0,30);sv('sg_act',ACT)};
 const ago=ms=>{const m=Math.round((Date.now()-ms)/6e4);return m<1?'just now':m<60?m+' min ago':m<1440?Math.floor(m/60)+' h ago':Math.floor(m/1440)+' d ago'};
 const isDL=id=>DLS.some(s=>s.id===id);
-const avUI=()=>{const a=$('#av');if(!a)return;if(typeof FU!=='undefined'&&FU){const n=(FU.displayName||FU.email||NAME||'S').trim();a.className='av tp pf';a.setAttribute('aria-label','Me');a.innerHTML=FU.photoURL?`<img src="${esc(FU.photoURL)}" alt="" referrerpolicy="no-referrer">`:esc((n[0]||'S').toUpperCase())}else{a.className='av tp sg';a.removeAttribute('aria-label');a.textContent='Sign in'}};
+var AREADY=0;
+const avUI=()=>{const a=$('#av');if(!a)return;if(typeof FU!=='undefined'&&FU){const n=(FU.displayName||FU.email||NAME||'S').trim();a.className='av tp pf';a.setAttribute('aria-label','Me');a.innerHTML=FU.photoURL?`<img src="${esc(FU.photoURL)}" alt="" referrerpolicy="no-referrer">`:esc((n[0]||'S').toUpperCase());sv('sg_au',{n:(n[0]||'S').toUpperCase(),p:FU.photoURL||''})}else if(!AREADY&&ls('sg_au',null)){const o=ls('sg_au',null);a.className='av tp pf';a.setAttribute('aria-label','Me');a.innerHTML=o.p?`<img src="${esc(o.p)}" alt="" referrerpolicy="no-referrer">`:esc(o.n||'S')}else{a.className='av tp sg';a.removeAttribute('aria-label');a.textContent='Sign in'}};
 const refresh=()=>{shown='';if(!location.hash.startsWith('#/now'))route()};
 
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.toggle('top',!!($('#sheet.on')||$('#ob')||$('#dlg.on')));t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2400)};
@@ -739,13 +749,14 @@ const bg=c=>`background:linear-gradient(135deg,${c},#14120e)`;
 const href=(t,q)=>`#/list/${enc(t)}/${enc(q)}`;
 const isLiked=id=>liked.some(s=>s.id===id);
 const likeBtn=id=>`<button class="ib ${isLiked(id)?'on':''}" data-like="${esc(id)}" aria-label="Like">${ic(isLiked(id)?'heart':'heartO')}</button>`;
-function songRows(arr,ctx){lists[ctx]=arr;
- return arr.map((s,i)=>`<div class="song tp rv${Q[qi]&&Q[qi].id===s.id?' cur':''}" ${dl(i)} data-ctx="${ctx}" data-i="${i}"><span class="n"><em>${i+1}</em><i class="eq"><b></b><b></b><b></b></i></span><img class="th" src="${esc(sm(s.img))}" alt="" loading="lazy" decoding="async"><div class="x"><div class="t">${esc(s.title)}</div><div class="a">${esc(s.artist)}</div></div><span class="al">${esc(s.alb)}</span><span class="d">${s.dur?fm(s.dur):''}</span><span class="rx">${likeBtn(s.id)}<button class="ib" data-more="${esc(s.id)}" aria-label="More">${ic('dots')}</button></span></div>`).join('')}
+function songRows(arr,ctx,off=0){lists[ctx]=arr;
+ return arr.slice(off).map((s,j)=>{const i=j+off;return `<div class="song tp rv${Q[qi]&&Q[qi].id===s.id?' cur':''}" ${dl(j)} data-ctx="${ctx}" data-i="${i}"><span class="n"><em>${i+1}</em><i class="eq"><b></b><b></b><b></b></i></span><img class="th" src="${esc(sm(s.img))}" alt="" loading="lazy" decoding="async"><div class="x"><div class="t">${esc(s.title)}</div><div class="a">${esc(s.artist)}</div></div><span class="al">${esc(s.alb)}</span><span class="d">${s.dur?fm(s.dur):''}</span><span class="rx">${likeBtn(s.id)}<button class="ib" data-more="${esc(s.id)}" aria-label="More">${ic('dots')}</button></span></div>`}).join('')}
 const cards=(arr,ctx)=>{lists[ctx]=arr;return arr.map((s,i)=>`<div class="card tp rv" ${dl(i)} data-ctx="${ctx}" data-i="${i}"><img src="${esc(s.img)}" alt="" loading="lazy"><b>${esc(s.title)}</b><small>${esc(s.artist)}</small></div>`).join('')};
 const skel=n=>Array(n).fill('<div class="sk"></div>').join('');
 const plItem=(p,i)=>`<a class="pl tp" href="${href(p[0],p[1])}"><div class="th" data-q="${esc(p[1])}" style="${bg(p[2])}"></div><div><b>${p[0]}</b><small>Playlist</small></div></a>`;
 /* ---------- views ---------- */
 function home(){
+ NR.n=8;NR.auto=0;
  const h=new Date().getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
  main.innerHTML=`<div class="pg" id="hp"><div class="hd"><h1>${g}</h1><div class="hr"><button class="ibtn tp" data-inst="1">${ic('dl')}Install</button><a class="prem tp" href="#/stage">${ic('user')}Me</a></div></div>
  <div class="chips"><span class="chip on" data-hf="">All</span><span class="chip" data-hf="m">Music</span><span class="chip" data-hf="y">Made for you</span></div>
@@ -755,7 +766,7 @@ function home(){
  <h2 data-s="m">Recently played <a href="#/all/recent">Show all</a></h2><div class="scroll" data-s="m" id="rp">${hist.length?cards(hist.slice(0,12),'hist'):''}</div>
  <h2 data-s="m" id="pph" style="display:none">Playlists for you</h2><div class="scroll" data-s="m" id="ppx" style="display:none"></div>
  <h2 data-s="y">Made for you</h2><div class="scroll" data-s="y">${mixes().map((m,i)=>`<a class="mix tp rv" ${dl(i)} data-q="${esc(m[2])}" style="${bg(m[3])}" href="${href(m[0],m[2])}"><div class="mt"><b>${m[0]}</b><small>${m[1]}</small></div><span class="gp">${ic('play')}</span></a>`).join('')}</div>
- <h2 data-s="m">Trending songs <span class="live">LIVE</span></h2><div class="two" data-s="m" id="trend">${skel(6)}</div><div id="shelves"></div>
+ <h2 data-s="m">New Releases <a href="#" id="nrm">Show more</a></h2><div class="two" data-s="m" id="trend">${skel(6)}</div><div id="nrx" data-s="m"></div><div id="shelves"></div>
  <h2 data-s="m">Browse</h2><div class="scroll" data-s="m">${GENRES.map((m,i)=>`<a class="genre tp rv" ${dl(i)} data-q="${esc(m[1])}" style="${bg(m[2])}" href="${href(m[0],m[1])}"><span>${m[0]}</span></a>`).join('')}</div>
  <h2 data-s="m">Trending artists <a href="#/artists">Show all</a></h2><div class="scroll" data-s="m" id="tart">${artRowHome()}</div></div>`;
  instUI();goTos();homeLoad();try{ppHome()}catch(e){}}
@@ -773,7 +784,7 @@ function goPaint(list){
  box.classList.remove('off');h.classList.remove('off')}
 async function goTos(){
  try{
-  const pool=[...hist,...liked,...DLS,...PLS.flatMap(p=>p.songs||[])].filter(s=>s&&s.id&&s.url&&s.img);
+  const pool=[...hist.filter(s=>(PC[s.id]||0)>0),...liked,...DLS,...PLS.flatMap(p=>p.songs||[])].filter(s=>s&&s.id&&s.url&&s.img);
   let mine=dedupe(pool).map((s,i)=>({s,sc:goScore(s,i)})).sort((a,b)=>b.sc-a.sc).map(x=>x.s).slice(0,18);
   goPaint(mine);
   /* not enough history yet (new user): fill up from the singers they like, so the shelf is never empty */
@@ -797,10 +808,27 @@ const mapPl=x=>({n:dec(x.name||x.title),img:pic(x),a:x.songCount?x.songCount+' s
 const entList=async(p,q,f)=>{try{const j=await api(p,{query:q,limit:14}),r=(j.data&&j.data.results)||[];return Array.isArray(r)?r.map(f).filter(x=>x.id&&x.img):[]}catch(e){return[]}};
 /* run jobs 3 at a time so the API is not hammered */
 const pool=async(fns,n=3)=>{const out=[];let i=0;await Promise.all(Array(n).fill(0).map(async()=>{while(i<fns.length){const k=i++;try{out[k]=await fns[k]()}catch(e){out[k]=[]}}}));return out};
+const NR={l:[],n:8,auto:0,done:0,qi:1,busy:0};
+const NRQ=()=>['new hindi songs '+YR,'latest bollywood songs '+YR,'new punjabi songs '+YR,'new songs '+YR,'new hindi love songs '+YR,'new haryanvi songs '+YR,'new english songs '+YR,'new hindi songs '+(YR-1),'new bollywood songs '+(YR-1)];
+function nrAdd(l){const have=new Set(NR.l.map(x=>x.id));let c=0;(l||[]).forEach(x=>{if(x&&x.url&&x.img&&!have.has(x.id)&&!NR.l.some(o=>sameSong(o,x))){NR.l.push(x);have.add(x.id);c++}});return c}
+async function nrMore(){const q=NRQ();let n=0;while(!n&&NR.qi<q.length){try{n=nrAdd(await search(q[NR.qi++]))}catch(e){}}if(!n)NR.done=1;return n}
+async function nrFirst(){const q=NRQ();let l=[];try{const r=await Promise.all([plSongs('New Releases',/new|latest|fresh/i),search(q[0])]);l=dedupe([...r[0],...r[1]])}catch(e){}NR.l=[];NR.qi=1;NR.done=0;nrAdd(l);return NR.l.slice()}
+const scAnc=el=>{let p=el&&el.parentElement;while(p&&p!==document.body&&p!==document.documentElement){if(/(auto|scroll)/.test(getComputedStyle(p).overflowY))return p;p=p.parentElement}return null};
+let NIO=null;
+function nrArm(){if(NIO){NIO.disconnect();NIO=null}const t=document.querySelector('#nrx .sms');if(!t)return;
+ NIO=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){const ck=Date.now()-(window.NLS||0)<1200?20:10;window.NLS=Date.now();nrGrow(ck)}},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});NIO.observe(t)}
+function nrUI(){const a=$('#nrm'),x=$('#nrx');if(a)a.style.display=NR.auto?'none':(NR.n<NR.l.length||!NR.done?'':'none');
+ if(x){const rest=NR.n<NR.l.length||!NR.done;x.innerHTML=NR.auto&&rest?'<div class="sms"></div>':'';if(NR.auto&&rest)nrArm()}}
+function nrPaint(){const e=$('#trend');if(!e||!NR.l.length)return;lists.trend=NR.l.slice(0,NR.n);e.innerHTML=songRows(lists.trend,'trend');nrUI()}
+async function nrGrow(k){if(NR.busy)return;NR.busy=1;try{while(NR.n+k>NR.l.length&&!NR.done){if(!await nrMore())break}
+ const from=NR.n;NR.n=Math.min(NR.l.length,NR.n+k);const e=$('#trend');if(e&&NR.n>from){lists.trend=NR.l.slice(0,NR.n);e.insertAdjacentHTML('beforeend',songRows(lists.trend,'trend',from))}
+ nrUI()}catch(x){}finally{NR.busy=0}}
 function heroTrend(d){
  const T=d.trend||[],e=$('#trend');if(!e)return;
  TAPI=T;heroFill(trendMerge(T));trendListen();trendUI();
- e.innerHTML=T.length?songRows(T.length>14?T.slice(6,14):T.slice(0,8),'trend'):`<div class="msg" style="grid-column:1/-1">Could not load songs.${why()}<br><button class="btn tp" id="hretry" style="margin-top:12px">Try again</button></div>`;
+ if(Array.isArray(d.nr)&&d.nr.length&&!NR.l.length){NR.l=d.nr.slice();NR.qi=1}
+ if(NR.l.length){if(!NR.auto)nrPaint()}
+ else e.innerHTML=Array.isArray(d.nr)||!T.length?`<div class="msg" style="grid-column:1/-1">Could not load songs.${why()}<br><button class="btn tp" id="hretry" style="margin-top:12px">Try again</button></div>`:skel(6);
  const b=$('#hretry');if(b)b.onclick=()=>{try{localStorage.removeItem(HK)}catch(x){}home()};
  const rp=$('#rp');if(rp&&!rp.innerHTML.trim()&&T.length)rp.innerHTML=cards(T.slice(14,26).length?T.slice(14,26):T.slice(0,12),'rpd')}
 function shelvesFill(d){
@@ -817,18 +845,18 @@ function shelvesFill(d){
  if(ta&&arts.length)ta.innerHTML=artRow(arts)}
 async function homeLoad(){
  const c=ls(HK,null),ok=!!(c&&c.d&&c.d.trend&&c.d.trend.length);
- if(ok){heroTrend(c.d);shelvesFill(c.d);if(Date.now()-c.t<HTTL)return} /* fresh cache: no network at all */
+ if(ok){heroTrend(c.d);shelvesFill(c.d);if(Date.now()-c.t<HTTL&&c.d.nr&&c.d.nr.length)return} /* fresh cache: no network at all */
  const d={};
  try{
-  const [tr,ch]=await Promise.all([plSongs('Trending Today',/trending/i).then(r=>r.length?r:search('trending hindi songs '+YR)),plSongs('Top 15 Hindi',/top|chart/i)]);
-  d.trend=tr;d.chart=ch;
+  const [tr,ch,nr]=await Promise.all([plSongs('Trending Today',/trending/i).then(r=>r.length?r:search('trending hindi songs '+YR)),plSongs('Top 15 Hindi',/top|chart/i),nrFirst()]);
+  d.trend=tr;d.chart=ch;d.nr=nr;
   if(!tr.length){if(!ok)heroTrend(d);return} /* offline: keep showing the old cached home if we have one */
   heroTrend(d);
   const jobs=SHELVES.map(s=>()=>search(s[2]).then(r=>r.slice(0,14))).concat([()=>entList('/api/search/albums','new hindi album',mapAl),()=>entList('/api/search/playlists','hindi hits',mapPl)]);
   const r=await pool(jobs);
   SHELVES.forEach((s,i)=>d[s[0]]=r[i]||[]);d.al=r[SHELVES.length]||[];d.pl=r[SHELVES.length+1]||[];
   shelvesFill(d);
-  const slim={};Object.keys(d).forEach(k=>slim[k]=(d[k]||[]).slice(0,k==='trend'?26:14));
+  const slim={};Object.keys(d).forEach(k=>slim[k]=(d[k]||[]).slice(0,k==='trend'?26:k==='nr'?40:14));
   sv(HK,{t:Date.now(),d:slim})
  }catch(e){if(!ok)heroTrend({trend:[]})}}
 
@@ -836,9 +864,9 @@ const entH=e=>`#/ent/${e.t}/${enc(e.id||'')}/${enc(e.n)}`;
 const saveRS=q=>{const l=q.toLowerCase();RS=[q,...RS.filter(x=>typeof x!=='string'||(!x.toLowerCase().startsWith(l)&&!l.startsWith(x.toLowerCase())))].slice(0,15);sv('sg_rs',RS)};
 async function ex(p,q){try{const j=await api(p,{query:q,limit:20}),r=(j.data&&j.data.results)||[];return Array.isArray(r)?r:[]}catch(e){return[]}}
 const pic=x=>((Array.isArray(x.image)?(x.image[x.image.length-1]||{}).url:x.image)||'').replace(/150x150|50x50/,'500x500');
-function fullSearch(q){return SRC[q]||(SRC[q]=Promise.all([search(q),ex('/api/search/albums',q),ex('/api/search/artists',q),ex('/api/search/playlists',q)]).then(([songs,al,ar,pl])=>{
- const [ea,eb]=ents(songs);
- return{songs,
+function fullSearch(q){return SRC[q]||(SRC[q]=Promise.all([search(q),ex('/api/search/albums',q),ex('/api/search/artists',q),ex('/api/search/playlists',q)]).then(async([songs0,al,ar,pl])=>{
+ const songs=rankSongs(await widenSongs(songs0,q),q);const [ea,eb]=ents(songs);
+ return{q,sn:10,pg:0,done:0,auto:0,songs,
   albums:al.length?al.map(x=>({n:dec(x.name||x.title),img:pic(x),a:dec(x.artists&&x.artists.primary?x.artists.primary.map(a=>a.name).join(', '):x.artist||''),id:x.id,t:'album'})):eb.map(x=>({...x,t:'album'})),
   artists:(()=>{const nz=t=>String(t||'').toLowerCase().replace(/[^a-z0-9\u0900-\u097f]/g,''),qq=nz(q),a=ar.length?ar.map(x=>({n:dec(x.name||x.title),img:pic(x),id:x.id,t:'artist'})):ea.map(x=>({...x,t:'artist'}));a.forEach(x=>{const n=nz(x.n);x.m=!!qq&&!!n&&(n.includes(qq)||qq.includes(n))});return a.filter(x=>x.m).concat(a.filter(x=>!x.m))})(),
   playlists:pl.map(x=>({n:dec(x.name||x.title),img:pic(x),a:(x.songCount?x.songCount+' songs':'Playlist'),id:x.id,t:'playlist'}))}}))}
@@ -846,20 +874,30 @@ function entSongs(type,id,name){const k=type+'|'+(id||name),m=ecm(),c=m[k];
  const net=()=>entNet(type,id,name).then(r=>{if(r.length){m[k]={t:Date.now(),l:r.slice(0,150).map(slimS)};lru(m,'',5);sv(ECK,m)}return r});
  if(c&&c.l&&c.l.length){c.l.forEach(s=>C[s.id]=s);if(Date.now()-c.t>ECTTL)setTimeout(net,3000);return Promise.resolve(c.l)}
  return net()}
-function drawS(){drawS0();try{ppSearch()}catch(e){}}
+const moreS=R=>(R.sn<R.songs.length||!R.done)?(R.auto?'<div class="sms" id="sms"></div>':'<div class="smw"><button class="btn tp" data-sm="1">Show more</button></div>'):'';
+let SIO=null,SLB=0,LST=0;
+function armS(){if(SIO){SIO.disconnect();SIO=null}const t=$('#sms');if(!t||STAB!=='songs')return;
+ SIO=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting))loadMoreS()},{root:scAnc(t),rootMargin:'0px 0px 700px 0px'});SIO.observe(t)}
+async function loadMoreS(){const R=SRR;if(SLB||!R)return;SLB=1;
+ try{if(R.sn+10>R.songs.length&&!R.done)await fetchMoreSongs(R);
+  const ck=Date.now()-LST<1200?20:10;LST=Date.now();if(R.sn+ck>R.songs.length&&!R.done)await fetchMoreSongs(R);const from=R.sn;R.sn=Math.min(R.songs.length,R.sn+ck);const tb=$('#stbl');
+  if(tb&&R.sn>from)tb.insertAdjacentHTML('beforeend',songRows(R.songs.slice(0,R.sn),'sr',from));
+  const t=$('#sms');if(t){if(R.sn<R.songs.length||!R.done){if(SIO){SIO.unobserve(t);SIO.observe(t)}}else{t.remove();if(SIO){SIO.disconnect();SIO=null}}}
+ }catch(e){}finally{SLB=0}}
+function drawS(){drawS0();try{armS()}catch(e){}try{ppSearch()}catch(e){}}
 function drawS0(){const R=SRR,e=$('#sr');if(!e)return;
  if(!R.songs.length&&!R.albums.length&&!R.artists.length){e.innerHTML=`<div class="msg">Nothing found.${why()}</div>`;return}
  const T=[['all','All'],['songs','Songs',R.songs.length],['albums','Albums',R.albums.length],['artists','Artists',R.artists.length],['playlists','Playlists',R.playlists.length]].filter(t=>t[0]==='all'||t[2]);
  if(!T.some(t=>t[0]===STAB))STAB='all';
  const wrap=(h,c='')=>`<div class="wg ${c}">${h}</div>`;let b;
- if(STAB==='songs')b=`<div class="tbl">${songRows(R.songs,'sr')}</div>`;
+ if(STAB==='songs')b=`<div class="tbl" id="stbl">${songRows(R.songs.slice(0,R.sn),'sr')}</div>${moreS(R)}`;
  else if(STAB==='albums')b=wrap(albRow(R.albums),'c2');
  else if(STAB==='artists')b=wrap(artRow(R.artists));
  else if(STAB==='playlists')b=wrap(albRow(R.playlists),'c2');
- else b=`${R.songs.length?`<h2 style="margin-top:6px">Songs</h2><div class="tbl">${songRows(R.songs.slice(0,8),'sr')}</div>`:''}${R.artists.some(x=>x.m)?`<h2>Artists</h2><div class="scroll">${artRow(R.artists.filter(x=>x.m).slice(0,10))}</div>`:''}${R.albums.length?`<h2>Albums</h2><div class="scroll">${albRow(R.albums.slice(0,10))}</div>`:''}${R.playlists.length?`<h2>Playlists</h2><div class="scroll">${albRow(R.playlists.slice(0,10))}</div>`:''}`;
+ else b=`${R.songs.length?`<h2 style="margin-top:6px">Songs</h2><div class="tbl">${songRows(R.songs.slice(0,10),'sr')}</div>${R.songs.length>10||!R.done?'<div class="smw"><button class="btn tp" data-sm="all">Show more</button></div>':''}`:''}${R.artists.some(x=>x.m)?`<h2>Artists</h2><div class="scroll">${artRow(R.artists.filter(x=>x.m).slice(0,10))}</div>`:''}${R.albums.length?`<h2>Albums</h2><div class="scroll">${albRow(R.albums.slice(0,10))}</div>`:''}${R.playlists.length?`<h2>Playlists</h2><div class="scroll">${albRow(R.playlists.slice(0,10))}</div>`:''}`;
  e.innerHTML=`<div class="chips">${T.map(t=>`<span class="chip${STAB===t[0]?' on':''}" data-st="${t[0]}">${t[1]}${t[2]?' ('+t[2]+')':''}</span>`).join('')}</div>${b}`}
 function runS(q){const k=++STK;$('#sr').innerHTML=skel(6);{const c=$('#col');if(c)c.scrollTop=0;main.scrollTop=0}
- fullSearch(q).then(R=>{if(k!==STK||!$('#sr'))return;SRR=R;if(R.songs.length&&q.length>=3)saveRS(q);drawS()})}
+ fullSearch(q).then(R=>{if(k!==STK||!$('#sr'))return;SRR=R;R.sn=10;R.auto=0;if(R.songs.length&&q.length>=3)saveRS(q);drawS()})}
 function emptyS(){STK++;const e=$('#sr');if(!e)return;if(document.body.classList.contains('ssm'))return drawRecents();
  const ch=l=>`<div class="chips" style="flex-wrap:wrap">${l.map(x=>`<span class="chip" data-sq="${esc(x)}">${esc(x)}</span>`).join('')}</div>`;
  e.innerHTML=`<h2 style="margin-top:6px">Trending</h2>${ch(TR)}<h2>Browse all</h2><div class="gn">${BROWSE.map((m,i)=>`<a class="genre tp rv" style="${i<8?'--d:'+i+';':'animation:none;'}${bg(m[2])}" data-q="${esc(m[1])}" href="${href(m[0],m[1])}"><span>${m[0]}</span></a>`).join('')}</div>`;covers()}
@@ -894,6 +932,20 @@ function searchV(q){
  q?runS(q):emptyS();
  if(!q&&!matchMedia('(max-width:800px)').matches)si.focus()}
 
+/* Show more buttons (search + New Releases) and the two Share options */
+document.addEventListener('click',async e=>{
+ const m=e.target.closest('[data-sm]');
+ if(m){const R=SRR;if(!R)return;const all=m.dataset.sm==='all';R.auto=1;if(all)STAB='songs';
+  if(R.sn+10>R.songs.length&&!R.done)await fetchMoreSongs(R);
+  R.sn=Math.min(R.songs.length,R.sn+10);drawS();if(all){const c=$('#col');if(c)c.scrollTop=0;main.scrollTop=0}return}
+ const n=e.target.closest('#nrm');
+ if(n){e.preventDefault();NR.auto=1;nrUI();nrGrow(20);return}
+ const b=e.target.closest('[data-shr]');
+ if(b){const web=b.dataset.shr==='web',u=web?'https://signify-pearl.vercel.app':'https://github.com/priyanshuraj834072-eng/singify-app/releases/latest/download/singify.apk';
+  try{closeSheet()}catch(x){}
+  try{if(navigator.share){await navigator.share({title:'Singify',text:web?'Singify - free music player':'Singify app - free music player',url:u});return}}catch(x){if(x&&x.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(u);toast('Link copied')}catch(x){dlg('Share Singify',u,{ok:'OK'})}}
+},true);
 function listV(title,q,fn,ph){
  main.innerHTML=`<div class="pg"><div class="head"><div class="cv" id="cv" style="${bg('#5a3a10')}"></div><div><h1>${esc(title)}</h1><p>Your music, without ads.</p><p id="lc">Loading...</p><div class="acts"><a class="go tp" id="lp" href="#" style="display:none">${ic('play')}Play</a></div></div></div>
  <div class="tbl"><div class="tbh"><span>#</span><span>TITLE</span><span>ALBUM</span><span>${ic('clock')}</span></div><div id="lr">${skel(8)}</div></div></div>`;
@@ -968,11 +1020,12 @@ function dlStash(){
 
 /* ---------- hero, radio, menu, install ---------- */
 const pcf=n=>n>=1e7?(n/1e7).toFixed(1).replace('.0','')+' Cr':n>=1e5?(n/1e5).toFixed(1).replace('.0','')+' L':n>=1e3?Math.round(n/1e3)+'K':n;
+const heroImgs=(h,i)=>[...h.children].forEach((x,k)=>{if(x.dataset&&x.dataset.bg&&k<=i+2){x.style.backgroundImage=`url('${x.dataset.bg}')`;delete x.dataset.bg}});
 function heroFill(r){const h=$('#hero');if(!h)return;if(!r.length){$('#hw').style.display='none';return}
- const l=r.slice(0,6);lists.hero=l;
- h.innerHTML=l.map((s,i)=>`<div class="hs" style="background-image:url('${esc(s.img)}')"><span class="badge">Trending #${i+1}</span><h3>${esc(s.title)}</h3><p>${esc(s.artist)}${s.tn?' · '+s.tn+' min played':s.pc?' · '+pcf(s.pc)+' plays':''}</p><div class="hb"><button class="go tp" data-hplay="${i}">${ic('play')}Play now</button><button class="btn tp" data-radio="${esc(s.id)}">${ic('mic')}Start radio</button>${likeBtn(s.id)}</div></div>`).join('');
+ const l=r.slice(0,10);lists.hero=l;
+ h.innerHTML=l.map((s,i)=>`<div class="hs" ${i<3?`style="background-image:url('${esc(s.img)}')"`:`data-bg="${esc(s.img)}"`}><span class="badge">Trending on Singify \u00b7 #${i+1}</span><h3>${esc(s.title)}</h3><p>${esc(s.artist)}${s.tn?' · '+s.tn+' min played':s.pc?' · '+pcf(s.pc)+' plays':''}</p><div class="hb"><button class="go tp" data-hplay="${i}">${ic('play')}Play now</button><button class="btn tp" data-radio="${esc(s.id)}">${ic('mic')}Start radio</button>${likeBtn(s.id)}</div></div>`).join('');
  h.scrollLeft=0;const d=$('#hd');d.innerHTML=l.map((_,i)=>`<i${i?'':' class="on"'}></i>`).join('');
- h.onscroll=()=>{const i=Math.round(h.scrollLeft/h.clientWidth);[...d.children].forEach((x,k)=>x.classList.toggle('on',k===i));clearTimeout(h._t);h._t=setTimeout(()=>{const w=h.clientWidth+12,n=Math.round(h.scrollLeft/w);if(Math.abs(h.scrollLeft-n*w)>2)h.scrollTo({left:n*w,behavior:'smooth'})},180)}}
+ h.onscroll=()=>{const i=Math.round(h.scrollLeft/h.clientWidth);heroImgs(h,i);[...d.children].forEach((x,k)=>x.classList.toggle('on',k===i));clearTimeout(h._t);h._t=setTimeout(()=>{const w=h.clientWidth+12,n=Math.round(h.scrollLeft/w);if(Math.abs(h.scrollLeft-n*w)>2)h.scrollTo({left:n*w,behavior:'smooth'})},180)}}
 async function radio(s){if(!s)return;toast('Starting radio...');
  const a=(s.artist.split(',')[0]||'').trim();let r=(await search(a+' songs')).filter(x=>x.id!==s.id&&x.url);
  for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}
@@ -1016,7 +1069,7 @@ function apkPopup(){
 setTimeout(()=>{if(!canApk()||document.visibilityState==='hidden')return;let t=0;try{t=+localStorage.getItem('sg_apk_t')||0}catch(e){}if(Date.now()>t)apkPopup()},3500);
 
 /* ---------- App update system: version.json decides everything ---------- */
-const SHELL_CACHE='singify-v7',SHELL_FILES=['/','/index.html','/songs.js','/playlists.js','/native.js','/manifest.json'];
+const SHELL_CACHE='singify-v8',SHELL_FILES=['/','/index.html','/songs.js','/playlists.js','/native.js','/manifest.json'];
 function vParts(v){return String(v||'0').split('.').map(x=>parseInt(x,10)||0)}
 function vCmp(a,b){a=vParts(a);b=vParts(b);for(let i=0;i<Math.max(a.length,b.length);i++){const x=a[i]||0,y=b[i]||0;if(x!==y)return x<y?-1:1}return 0}
 function updClose(){const p=document.getElementById('updp');if(!p)return;p.style.opacity='0';setTimeout(()=>p.remove(),200)}
@@ -1110,11 +1163,13 @@ function route(){
  covers();main.scrollTop=0;{const c=$('#col');if(c)c.scrollTop=0}setTimeout(()=>{if(SPOS[h])main.scrollTop=SPOS[h]},60)}
 addEventListener('hashchange',route);
 /* ---------- player ---------- */
+/* a play only counts (play count, artist taste, Go-Tos) after half of the song really played; Recently played is updated at once */
+function countPlay(s){if(!s)return;
+ PC[s.id]=(PC[s.id]||0)+1;{const k=Object.keys(PC);if(k.length>400){k.sort((a,b)=>PC[a]-PC[b]).slice(0,100).forEach(x=>delete PC[x])}}sv('sg_pc',PC);
+ ST.plays++;String(s.artist||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(a=>ST.art[a]=(ST.art[a]||0)+1);sv('sg_st',ST)}
 async function load(rt){const s=Q[qi];if(!s)return;const rs=rt!=null;if(!rs)RESUME=null;
  if(!s.url){toast('This song has no link, playing the next one');return skip()}
- if(!rs){hist=[s,...hist.filter(x=>x.id!==s.id)].slice(0,50);sv('sg_hist',hist);
- PC[s.id]=(PC[s.id]||0)+1;{const k=Object.keys(PC);if(k.length>400){k.sort((a,b)=>PC[a]-PC[b]).slice(0,100).forEach(x=>delete PC[x])}}sv('sg_pc',PC);
- ST.plays++;s.artist.split(',').map(x=>x.trim()).filter(Boolean).forEach(a=>ST.art[a]=(ST.art[a]||0)+1);sv('sg_st',ST);log('Played '+s.title)}
+ if(!rs){hist=[s,...hist.filter(x=>x.id!==s.id)].slice(0,50);sv('sg_hist',hist);log('Played '+s.title)}
  ui();loadLy(s);let u=s.url;
  if(isDL(s.id)){try{const m=await(await caches.open('sg-audio')).match(s.url);if(m){if(OU)URL.revokeObjectURL(OU);u=OU=URL.createObjectURL(await m.blob())}}catch(e){}}
  if(Q[qi]!==s)return;
@@ -1204,7 +1259,7 @@ document.addEventListener('click',async e=>{
   else if(k==='arup')arAdmin();
   else if(k==='glass'){setGlass(!GL);st.setAttribute('aria-checked',GL?'true':'false');const w=st.querySelector('.sw');if(w)w.classList.toggle('on',GL)}
   else if(k==='logout'){if(await dlg('Log out?','Your music stays saved in your account. You can log in again anytime.',{ok:'Log out',bad:1}))authAct('so')}
-  else if(k==='share'){const u='https://signify-pearl.vercel.app';try{if(navigator.share){await navigator.share({title:'Singify',text:'Singify - free music player',url:u});return}}catch(x){if(x&&x.name==='AbortError')return}try{await navigator.clipboard.writeText(u);toast('Link copied')}catch(x){dlg('Share Singify',u,{ok:'OK'})}}
+  else if(k==='share'){const th=n=>`<span class="th liked" style="width:36px;height:36px">${ic(n)}</span>`;sheet(`<h3>Share Singify</h3><button class="si tp" data-shr="web">${th('home')}Share Singify web</button><button class="si tp" data-shr="app">${th('dl')}Share Singify app</button>`)}
   else if(k==='dl')clearDL().then(refresh);
   else if(await dlg('Reset everything?','Liked songs, playlists and downloads will be removed.',{ok:'Reset',bad:1})){try{if(FU&&DB)await DB.ref('users/'+FU.uid+'/d').remove()}catch(x){}const kv=localStorage.getItem('sg_ver');localStorage.clear();if(kv)localStorage.setItem('sg_ver',kv);caches.delete('sg-audio').finally(()=>location.reload())}
   return}
@@ -1235,8 +1290,8 @@ const AERR={'auth/wrong-password':'Incorrect password','auth/invalid-credential'
 const authMsg=x=>{const m=AERR[x&&x.code];return m===''?'':(m||'Could not sign in: '+((x&&(x.code||x.message))||'error'))};
 try{if(typeof firebase!=='undefined'){firebase.initializeApp(FBC);AUTH=firebase.auth();try{DB=firebase.database()}catch(e){}
  AUTH.onAuthStateChanged(u=>{
-  if(u&&!okU(u)){FU=null;avUI();if(location.hash==='#/stage')stageV();return}
-  const was=WAS;FU=u;WAS=!!u;
+  if(u&&!okU(u)){FU=null;AREADY=1;try{localStorage.removeItem('sg_au')}catch(e){}avUI();if(location.hash==='#/stage')stageV();return}
+  const was=WAS;FU=u;WAS=!!u;AREADY=1;if(!u){try{localStorage.removeItem('sg_au')}catch(e){}}
   if(u){const n=(u.displayName||u.email||'').split(/[ @]/)[0];if(n&&NAME==='Singer'){NAME=n.slice(0,24);sv('sg_name',NAME)}avUI();cloudLoad(u)}
   else{CLT++;if(was){try{window.SG_GSIGNOUT&&window.SG_GSIGNOUT()}catch(e){}document.documentElement.classList.add('noanim');try{history.replaceState(null,'','#/home')}catch(e){}try{localStorage.setItem('sg_mix','false');localStorage.setItem('sg_skin','"lemon"');localStorage.setItem('sg_ui','"default"');localStorage.setItem('sg_ext','false')}catch(e){}cloudWipe();wipeLocal().finally(()=>location.reload())}avUI()}
   if(location.hash==='#/stage')stageV()});
@@ -1311,18 +1366,19 @@ async function wipeLocal(){try{A.pause();A.removeAttribute('src');A.load()}catch
  dlStash();
  ['sg_dl','sg_last','sg_lt','sg_fav','sg_prof','sg_av','sg_rs','sg_ri','sg_dm'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
  DLS=[];RI=[];Q=[];qi=0;RESUME=null}
-function cloudWipe(){SYON=0;SYQ={};Object.keys(SYK).forEach(k=>localStorage.removeItem(k));try{localStorage.removeItem('sg_uid')}catch(e){}liked=[];PLS=[];hist=[];ACT=[];PC={};ST={plays:0,secs:0,art:{}};NAME='Singer';try{sidePL();ui();refresh()}catch(e){}}
+function cloudWipe(q){SYON=0;SYQ={};Object.keys(SYK).forEach(k=>localStorage.removeItem(k));try{localStorage.removeItem('sg_uid')}catch(e){}liked=[];PLS=[];hist=[];ACT=[];PC={};ST={plays:0,secs:0,art:{}};NAME='Singer';if(!q){try{sidePL();ui();refresh()}catch(e){}}}
+const sigD=()=>{try{return JSON.stringify([liked.map(x=>x.id),hist.slice(0,14).map(x=>x.id),PLS.map(p=>p.id+p.name+(p.songs||[]).length),NAME,Object.keys(PC).length,ST.plays])}catch(e){return Math.random()}};
 async function cloudLoad(u){SYON=0;if(!DB)return;const my=++CLT;
  try{const d=(await DB.ref('users/'+u.uid+'/d').once('value')).val();
   if(my!==CLT||!FU||FU.uid!==u.uid)return;
   /* sg_uid == this account's data is cached on the phone (cloud wins). Otherwise it is logged-out (guest) data and gets merged with the cloud data */
   const pu=ls('sg_uid',null);if(pu&&pu!==u.uid){document.documentElement.classList.add('noanim');cloudWipe();await wipeLocal();location.reload();return}const mine=pu===u.uid,g=mine?null:{liked:liked.slice(),PLS:PLS.slice(),hist:hist.slice()};let merged=false;
-  if(d){cloudWipe();const A={sg_liked:v=>liked=v,sg_pl:v=>PLS=v,sg_hist:v=>hist=v,sg_pc:v=>PC=v,sg_st:v=>ST=v,sg_name:v=>NAME=v,sg_act:v=>ACT=v,sg_ri:v=>RI=v,sg_rs:v=>RS=v};
+  if(d){const s0=sigD();cloudWipe(1);const A={sg_liked:v=>liked=v,sg_pl:v=>PLS=v,sg_hist:v=>hist=v,sg_pc:v=>PC=v,sg_st:v=>ST=v,sg_name:v=>NAME=v,sg_act:v=>ACT=v,sg_ri:v=>RI=v,sg_rs:v=>RS=v};
    for(const k in d){if(!SYK[k])continue;try{localStorage.setItem(k,d[k]);if(A[k])A[k](JSON.parse(d[k]))}catch(e){}}
    if(d.sg_ri===undefined)sv('sg_ri',RI);if(d.sg_rs===undefined)sv('sg_rs',RS);
    if(g&&(g.liked.length||g.PLS.length||g.hist.length)){const uq=(a,b)=>{const s=new Set(a.map(x=>x&&x.id));return a.concat(b.filter(x=>x&&!s.has(x.id)))};
     liked=uq(liked,g.liked);PLS=uq(PLS,g.PLS);hist=uq(hist,g.hist).slice(0,50);merged=true}
-   try{sidePL();ui();refresh()}catch(e){}}
+   try{sidePL();ui();if(sigD()!==s0)refresh()}catch(e){}}
   else{const o={};Object.keys(SYK).forEach(k=>{const v=localStorage.getItem(k);if(v!=null)o[k]=v});await DB.ref('users/'+u.uid+'/d').update(o)}
   if(my!==CLT||!FU||FU.uid!==u.uid)return;
   try{localStorage.setItem('sg_uid',JSON.stringify(u.uid))}catch(e){}
