@@ -1,8 +1,8 @@
 {
-  "version": "1.4.8",
-  "minimum": "1.4.8",
+  "version": "1.5.0",
+  "minimum": "1.5.0",
   "mandatory": false,
-  "message": "Similar songs queue, Daily Mood, weekly trending aur edge-to-edge aaye hain.",
+  "message": "Artist Follow system aaya hai, previous button ab pichla gaana chalata hai, aur artist ke naam ek line mein dikhenge.",
   "apk": {
     "build": 22,
     "url": "https://github.com/priyanshuraj834072-eng/singify-app/releases/latest/download/singify.apk",
