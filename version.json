@@ -1,6 +1,6 @@
 {
-  "version": "1.5.5",
-  "minimum": "1.5.5",
+  "version": "1.5.6",
+  "minimum": "1.5.6",
   "mandatory": false,
   "message": "Artist Follow system aaya hai, previous button ab pichla gaana chalata hai, aur artist ke naam ek line mein dikhenge.",
   "apk": {
