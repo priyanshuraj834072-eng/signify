@@ -210,33 +210,29 @@ function trendListen(){
  if(TRL)return;
  if(!DB){if(TRW++<10)setTimeout(trendListen,1500);return}
  TRL=1;trendLoad();setInterval(trendLoad,600000)}
-async function trendList(){trendListen();for(let i=0;i<24&&!TRD.length&&!TAPI.length;i++)await new Promise(r=>setTimeout(r,250));return trendMerge(TAPI)}
+async function trendList(){trendListen();for(let i=0;i<24&&!TRD.length;i++)await new Promise(r=>setTimeout(r,250));return TRD}
 /* =====================================================================
    NEW RELEASES (home list of 8 + its own page) and "Show more" in search.
    Kept here so index.html stays small. Uses globals of the main app at call time.
    ===================================================================== */
-const NRK=4,NRAGE=150*864e5,NR={l:[],old:[],done:0,qi:NRK,busy:0};
-const NRQ=()=>{const y=new Date().getFullYear();return['new hindi songs '+y,'new english songs '+y,'new punjabi songs '+y,'latest bollywood songs '+y,'new pop songs '+y,'new haryanvi songs '+y,'new tamil songs '+y,'new telugu songs '+y,'new bhojpuri songs '+y,'new hindi love songs '+y,'new release '+y,y+' songs','new south dubbed songs '+y]};
+const NRK=4,NRAGE=210*864e5,NR={l:[],old:[],done:0,qi:NRK,busy:0};
+const NRQ=()=>{const y=new Date().getFullYear();return['new hindi songs '+y,'latest bollywood songs '+y,'new punjabi songs '+y,'new songs '+y,'new hindi love songs '+y,'new haryanvi songs '+y,'new english songs '+y,'hindi '+y,y+' songs','new release '+y,'bollywood new songs '+y,'new south hindi dubbed songs '+y]};
 /* release date of a song as a number; only the year known -> middle of that year; nothing known -> 0 */
 const nrDate=s=>{const d=Date.parse(s.rd||'');if(d)return d;const y=+s.yr||0;return y?Date.parse(y+'-07-01'):0};
-/* exact release date (0 when the API gave none) */
-const nrExact=s=>Date.parse((s&&s.rd)||'')||0;
-/* 2 = exact date inside the window (really new), 1 = only the year is known and it is this year (maybe new), 0 = old or no date: never shown as new */
-const nrTier=s=>{const d=nrExact(s);if(d){const age=Date.now()-d;return age<=NRAGE&&age>=-7*864e5?2:0}return s&&+s.yr===new Date().getFullYear()?1:0};
 /* recent songs (newest first) go in; songs of unknown date follow; old songs wait in NR.old */
 function nrAdd(l){const have=new Set(NR.l.map(x=>x.id)),now=Date.now(),items=[];
  (l||[]).forEach(x=>{if(x&&x.url&&x.img&&!have.has(x.id)&&!items.some(o=>o.id===x.id||sameSong(o,x))&&!NR.l.some(o=>sameSong(o,x)))items.push(x)});
- const rec=[];items.forEach(x=>{const t=nrTier(x);if(t===2)rec.push(x);else if(t===1)NR.old.push(x)});
- rec.sort((a,b)=>nrExact(b)-nrExact(a));NR.l=NR.l.concat(rec);return rec.length}
+ const rec=[],unk=[];items.forEach(x=>{const d=nrDate(x);if(!d)unk.push(x);else if(now-d<=NRAGE)rec.push(x);else NR.old.push(x)});
+ rec.sort((a,b)=>nrDate(b)-nrDate(a));NR.l=NR.l.concat(rec,unk);return rec.length+unk.length}
 async function nrMore(){const q=NRQ();let n=0;while(!n&&NR.qi<q.length){try{n=nrAdd(await search(q[NR.qi++]))}catch(e){}}if(!n)NR.done=1;return n}
 async function nrFirst(){const q=NRQ();NR.l=[];NR.old=[];NR.qi=NRK;NR.done=0;
  try{const r=await Promise.all([plSongs('New Releases',/new releases|latest releases|fresh hits/i)].concat(q.slice(0,NRK).map(x=>search(x))));nrAdd(dedupe([].concat(...r)))}catch(e){}
- if(NR.l.length<16){NR.old.sort((a,b)=>(+b.pc||0)-(+a.pc||0));NR.l=NR.l.concat(NR.old.splice(0,16-NR.l.length))} /* too few with an exact date: add songs of this year (only the year is known). Old songs and songs without any date are never added */
+ if(NR.l.length<16){NR.old.sort((a,b)=>nrDate(b)-nrDate(a));NR.l=NR.l.concat(NR.old.splice(0,16-NR.l.length))} /* too few new ones: fill up with the newest of the older */
  return NR.l.slice()}
 function nrPaint(){const e=$('#trend');if(!e||!NR.l.length)return;lists.trend=NR.l.slice(0,8);e.innerHTML=songRows(lists.trend,'trend')}
 /* home: the 8 songs (from cache or fresh) */
 function nrHome(d,e){
- if(Array.isArray(d.nr)&&d.nr.length&&!NR.l.length){NR.l=d.nr.filter(x=>nrTier(x)===2);NR.qi=NRK}
+ if(Array.isArray(d.nr)&&d.nr.length&&!NR.l.length){NR.l=d.nr.slice();NR.qi=NRK}
  if(NR.l.length)nrPaint();
  else e.innerHTML=Array.isArray(d.nr)||!(d.trend||[]).length?`<div class="msg" style="grid-column:1/-1">Could not load songs.${why()}<br><button class="btn tp" id="hretry" style="margin-top:12px">Try again</button></div>`:skel(6)}
 /* nearest scrolling parent of an element (for the "load more" watcher) */
@@ -270,32 +266,3 @@ document.addEventListener('click',async e=>{
  const all=m.dataset.sm==='all';R.auto=1;if(all)STAB='songs';
  await ensureMore(R,R.sn+10);
  R.sn=Math.min(R.songs.length,R.sn+10);drawS();if(all){const c=$('#col');if(c)c.scrollTop=0;main.scrollTop=0}},true);
-
-/* =====================================================================
-   NEW FROM ARTISTS YOU FOLLOW: only songs that really came out lately
-   (exact release date inside the window). Cached for 15 minutes.
-   ===================================================================== */
-let FNW={k:'',t:0,l:[],p:null};
-function folNewLoad(){
- const arts=FOL.slice(0,8),key=arts.map(a=>a.n).join('|');
- if(!arts.length)return Promise.resolve([]);
- if(FNW.k===key&&Date.now()-FNW.t<9e5)return Promise.resolve(FNW.l);
- if(FNW.p&&FNW.k===key)return FNW.p;
- FNW.k=key;
- return FNW.p=(async()=>{try{
-  const per=await pool(arts.map(a=>async()=>{
-   const k=a.n.toLowerCase();let id=a.id,r=[];
-   const mine=l=>(l||[]).filter(s=>s&&s.url&&s.img&&String(s.artist||'').toLowerCase().includes(k)&&nrTier(s)===2);
-   try{
-    if(!id){const j=await api('/api/search/artists',{query:a.n,limit:1}),f=((j.data&&j.data.results)||[])[0];id=f&&f.id}
-    if(id){try{const j=await api('/api/artists/'+id+'/songs',{page:0,sortBy:'latest',sortOrder:'desc'});r=mine(((j.data&&j.data.songs)||[]).map(norm))}catch(e){}}
-    if(!r.length)r=mine(await search(a.n+' new song '+new Date().getFullYear()))
-   }catch(e){}
-   return r}),3);
-  const all=[];per.forEach(l=>(l||[]).forEach(s=>{if(!all.some(o=>o.id===s.id||sameSong(o,s)))all.push(s)}));
-  all.sort((a,b)=>nrExact(b)-nrExact(a));all.forEach(s=>C[s.id]=s);
-  FNW.l=all.slice(0,30);FNW.t=Date.now();return FNW.l
- }catch(e){return FNW.l||[]}finally{FNW.p=null}})()}
-function folNewPaint(){const e=$('#fnw');if(!e||!FOL.length)return;
- folNewLoad().then(l=>{const x=$('#fnw');if(!x||!l.length)return;
-  x.innerHTML=`<h2>New from artists you follow <a href="#/fnew">Show all</a></h2><div class="tbl">${songRows(l.slice(0,5),'fnw')}</div>`}).catch(()=>{})}
